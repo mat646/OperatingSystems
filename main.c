@@ -4,6 +4,7 @@
 #include <sys/times.h>
 #include "table_manager.h"
 #include "table_manager_static.h"
+#include "time_full.h"
 
 int main(int argc, char **argv) {
 
@@ -24,46 +25,41 @@ int main(int argc, char **argv) {
 
     if (alloc_type == 1) { //dynamic
 
-        struct timespec rtsp;
-        //clock_settime()
-        clock_gettime(CLOCK_REALTIME, &rtsp);
-
-        struct tms mtms;
-        times(&mtms);
-
-        printf("%f\n", (float)mtms.tms_utime);
-
+        Time time1 = start();
 
         Table *xd = create_table(num, size);
 
-        times(&mtms);
+        end(&time1);
 
-        printf("%f\n", (float)mtms.tms_utime);
+        printf("%f\n", time1.user_time);
 
+        time1 = start();
 
         for (int i = 0; i < num; ++i) {
             delete_block(xd,i);
             add_block(xd, i);
         }
 
-        times(&mtms);
+        end(&time1);
 
-        printf("%f\n", (float)mtms.tms_utime);
+        printf("%f\n", time1.user_time);
+
+        time1 = start();
 
         char *a = search_table(xd, 2);
 
         printf("%s\n", a);
 
         delete_table(xd);
-        times(&mtms);
 
-        printf("%f\n", (float)mtms.tms_utime);
+        end(&time1);
+
+        printf("%f\n", time1.user_time);
 
     } else { //static
 
         Table_static *xd = create_table_static(num, size);
-
-
+        
         printf("%c", xd->values[0][0]);
         printf("%c", xd->values[0][1]);
         printf("%c", xd->values[0][2]);
@@ -76,4 +72,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-

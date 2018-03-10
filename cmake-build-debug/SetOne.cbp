@@ -96,6 +96,12 @@
 		<Unit filename="/home/mateusz/CLionProjects/SetOne/table_manager_static.h">
 			<Option target="SetOne"/>
 		</Unit>
+		<Unit filename="/home/mateusz/CLionProjects/SetOne/time_full.c">
+			<Option target="SetOne"/>
+		</Unit>
+		<Unit filename="/home/mateusz/CLionProjects/SetOne/time_full.h">
+			<Option target="SetOne"/>
+		</Unit>
 		<Unit filename="/home/mateusz/CLionProjects/SetOne/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

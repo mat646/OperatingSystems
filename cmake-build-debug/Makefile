@@ -231,6 +231,33 @@ table_manager_static.c.s:
 	$(MAKE) -f CMakeFiles/SetOne.dir/build.make CMakeFiles/SetOne.dir/table_manager_static.c.s
 .PHONY : table_manager_static.c.s
 
+time_full.o: time_full.c.o
+
+.PHONY : time_full.o
+
+# target to build an object file
+time_full.c.o:
+	$(MAKE) -f CMakeFiles/SetOne.dir/build.make CMakeFiles/SetOne.dir/time_full.c.o
+.PHONY : time_full.c.o
+
+time_full.i: time_full.c.i
+
+.PHONY : time_full.i
+
+# target to preprocess a source file
+time_full.c.i:
+	$(MAKE) -f CMakeFiles/SetOne.dir/build.make CMakeFiles/SetOne.dir/time_full.c.i
+.PHONY : time_full.c.i
+
+time_full.s: time_full.c.s
+
+.PHONY : time_full.s
+
+# target to generate assembly for a file
+time_full.c.s:
+	$(MAKE) -f CMakeFiles/SetOne.dir/build.make CMakeFiles/SetOne.dir/time_full.c.s
+.PHONY : time_full.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -252,6 +279,9 @@ help:
 	@echo "... table_manager_static.o"
 	@echo "... table_manager_static.i"
 	@echo "... table_manager_static.s"
+	@echo "... time_full.o"
+	@echo "... time_full.i"
+	@echo "... time_full.s"
 .PHONY : help
 
 

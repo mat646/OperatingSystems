@@ -1,6 +1,6 @@
 all: build-all run-all
 
-build-all: build-static build-shared build-dynamic
+build-all: build-time build-static build-shared build-dynamic
 
 run-all: test-static test-shared test-dynamic
 
@@ -13,17 +13,20 @@ build-libs-static: table_manager.o table_manager_static.o
 	ar rcs table_manager.a table_manager.o
 	ar rcs table_manager_static.a table_manager_static.o
 
+build-time: time_full.c
+	gcc -c time_full.c
+
 build-main: main.c
 	gcc -c main.c
 
 build-exec: main.o  table_manager.a table_manager_static.a
-	gcc main.o table_manager.a table_manager_static.a -o main
+	gcc main.o time_full.o table_manager.a table_manager_static.a -o main
 
 build-shared:
 	gcc -fPIC -c table_manager.c table_manager_static.c
 	gcc -shared -o table_manager.so table_manager.o
 	gcc -shared -o table_manager_static.so table_manager_static.o
-	gcc  main.c table_manager.so table_manager_static.so -L. -Wl,-rpath=. -o main_shared
+	gcc  main.c time_full.o table_manager.so table_manager_static.so -L. -Wl,-rpath=. -o main_shared
 
 build-dynamic:
 	gcc -fPIC -c table_manager.c table_manager_static.c

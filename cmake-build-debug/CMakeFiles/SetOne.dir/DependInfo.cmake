@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_CHECK_C
   "/home/mateusz/CLionProjects/SetOne/main_dynamic.c" "/home/mateusz/CLionProjects/SetOne/cmake-build-debug/CMakeFiles/SetOne.dir/main_dynamic.c.o"
   "/home/mateusz/CLionProjects/SetOne/table_manager.c" "/home/mateusz/CLionProjects/SetOne/cmake-build-debug/CMakeFiles/SetOne.dir/table_manager.c.o"
   "/home/mateusz/CLionProjects/SetOne/table_manager_static.c" "/home/mateusz/CLionProjects/SetOne/cmake-build-debug/CMakeFiles/SetOne.dir/table_manager_static.c.o"
+  "/home/mateusz/CLionProjects/SetOne/time_full.c" "/home/mateusz/CLionProjects/SetOne/cmake-build-debug/CMakeFiles/SetOne.dir/time_full.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

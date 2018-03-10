@@ -3,4 +3,4 @@ project(SetOne C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(SetOne main.c table_manager.h table_manager.c table_manager_static.h table_manager_static.c main_dynamic.c)
+add_executable(SetOne main.c table_manager.h table_manager.c table_manager_static.h table_manager_static.c main_dynamic.c time_full.h time_full.c)

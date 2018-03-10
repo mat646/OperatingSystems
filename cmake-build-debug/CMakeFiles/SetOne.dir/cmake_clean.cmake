@@ -3,6 +3,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/SetOne.dir/table_manager.c.o"
   "CMakeFiles/SetOne.dir/table_manager_static.c.o"
   "CMakeFiles/SetOne.dir/main_dynamic.c.o"
+  "CMakeFiles/SetOne.dir/time_full.c.o"
   "SetOne.pdb"
   "SetOne"
 )
