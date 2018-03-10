@@ -33,18 +33,18 @@ build-dynamic:
 
 test-static:
 	$(info testing static with static alloc)
-	./main 10 10 0 10
+	./main 1000 1000 0 10
 	$(info testing static with dynamic alloc)
-	./main 10 10 1 10
+	./main 1000 1000 1 10
 
 test-shared:
 	$(info testing shared with static alloc)
-	./main_shared 10 10 0 10
+	./main_shared 1000 1000 0 10
 	$(info testing shared with dynamic alloc)
-	./main_shared 10 10 1 10
+	./main_shared 1000 1000 1 10
 
 test-dynamic:
 	$(info testing dynamic with static alloc)
-	./main_dynamic 10 10 0 10
+	./main_dynamic 1000 1000 0 10
 	$(info testing dynamic with dynamic alloc)
-	./main_dynamic 10 10 1 10
+	./main_dynamic 1000 1000 1 10

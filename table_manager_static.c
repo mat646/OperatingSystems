@@ -11,27 +11,22 @@ Table_static *create_table_static(int num_elem, int block_size) {
     table->size = num_elem;
     table->block_size = block_size;
 
-    char a[num_elem][block_size];
-    table->values = (char **) a;
-    for (int i = 0; i < block_size; ++i) {
-        char b [block_size];
-        table->values[i] = b;
-    }
-
     //filling with data
     for (int i = 0; i < num_elem; ++i) {
         for (int j = 0; j < block_size; ++j) {
-            table->values[i][j] = 'a';
+            table->values[i][j] = rand_char_static();
         }
     }
     return table;
 };
 
-
+char rand_char_static(){
+    return (char)((rand() % 24) + 97);
+};
 
 void add_block_static(Table_static *table, int index) {
     for (int i = 0; i < table->block_size; ++i) {
-        table->values[index][i] = 'b';
+        table->values[index][i] = rand_char_static();
     }
 };
 

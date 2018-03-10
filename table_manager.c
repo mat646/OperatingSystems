@@ -21,7 +21,7 @@ Table *create_table(int num_elem, int block_size) {
     //filling with data
     for (int i = 0; i < num_elem; ++i) {
         for (int j = 0; j < block_size; ++j) {
-            table->values[i][j] = 'a';
+            table->values[i][j] = rand_char();
         }
     }
     return table;
@@ -35,12 +35,16 @@ void add_block(Table *table, int index) {
     table->values[index] = (char *)calloc((size_t) table->block_size, sizeof(char));
 
     for (int i = 0; i < table->block_size; ++i) {
-        table->values[index][i] = 'b';
+        table->values[index][i] = rand_char();
     }
 };
 
 void delete_block(struct Table *table, int index) {
     free(table->values[index]);
+};
+
+char rand_char(){
+    return (char)((rand() % 24) + 97);
 };
 
 char *search_table(struct Table *table, int index) {

@@ -10,6 +10,7 @@
 
 int main(int argc, char **argv) {
 
+    srand(time(NULL));
     if (argc == 1) {
         printf("Parametry wywolania:\n 1. liczba elementow tablicy\n 2. rozmiar bloku\n 3. sposob alokacji\n 4. operacje ");
         return 0;
@@ -27,11 +28,23 @@ int main(int argc, char **argv) {
     sscanf(argv[3], "%d", &alloc_type);
     sscanf(argv[4], "%p", &ops);
 
-    void *handle = dlopen("./table_manager.so", RTLD_LAZY);
-    if(!handle){ return  100; }
-    Table *(*lib_fun)(int num_elem, int block_size);
-    lib_fun = (Table *(*)(int num_elem, int block_size))dlsym(handle,"create_table");
-    if(dlerror() != NULL){ return 200; }
-    Table *xd = (*lib_fun)(num, size);
-    dlclose(handle);
+    if (alloc_type == 1) {
+        void *handle = dlopen("./table_manager.so", RTLD_LAZY);
+        if(!handle){ return  100; }
+        Table *(*lib_fun)(int num_elem, int block_size);
+        lib_fun = (Table *(*)(int num_elem, int block_size))dlsym(handle,"create_table");
+        if(dlerror() != NULL){ return 200; }
+        Table *xd = (*lib_fun)(num, size);
+        dlclose(handle);
+    } else {
+        void *handle = dlopen("./table_manager_static.so", RTLD_LAZY);
+        if(!handle){ return  100; }
+        Table *(*lib_fun)(int num_elem, int block_size);
+        lib_fun = (Table *(*)(int num_elem, int block_size))dlsym(handle,"create_table_static");
+        if(dlerror() != NULL){ return 200; }
+        Table *xd = (*lib_fun)(num, size);
+        dlclose(handle);
+    }
+
+
 }

@@ -11,10 +11,6 @@ stdio.h
 -
 stdlib.h
 -
-dlfcn.h
--
-sys/times.h
--
 time.h
 -
 table_manager.h
@@ -23,6 +19,8 @@ table_manager_static.h
 /home/mateusz/CLionProjects/SetOne/table_manager_static.h
 
 /home/mateusz/CLionProjects/SetOne/main_dynamic.c
+time.h
+-
 stdio.h
 -
 stdlib.h
