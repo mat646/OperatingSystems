@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     sscanf(argv[4], "%p", &ops);
 
     if (alloc_type == 1) {
-        printf("---Using dynamic allocation---\n");
+        printf("\n---Using dynamic allocation---\n");
 
         void *handle = dlopen("./table_manager.so", RTLD_LAZY);
         if(!handle){ return  120; }
@@ -33,21 +33,41 @@ int main(int argc, char **argv) {
         lib_fun = (Table *(*)(int num_elem, int block_size))dlsym(handle,"create_table");
         if(dlerror() != NULL){ return 220; }
 
-
         Time time1 = start();
 
         Table *xd = (*lib_fun)(num, size);
 
         end(&time1);
 
-        printf("Creating table:\n");
+        printf("\nCreating table:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
+
+
+        time1 = start();
+
+        for (int i = 0; i < xd->size; ++i) {
+            void (*block_handle)(Table *table, int index);
+            block_handle = (void (*)(Table *table, int index))dlsym(handle,"delete_block");
+            if(dlerror() != NULL){ return 221; }
+            (*block_handle)(xd, i);
+
+            block_handle = (void (*)(Table *table, int index))dlsym(handle,"add_block");
+            if(dlerror() != NULL){ return 222; }
+            (*block_handle)(xd, i);
+        }
+
+        end(&time1);
+
+        printf("\nDeleting and adding blocks alternately:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
 
         dlclose(handle);
     } else {
-        printf("---Using static allocation---\n");
+        printf("\n---Using static allocation---\n");
 
         void *handle = dlopen("./table_manager_static.so", RTLD_LAZY);
         if(!handle){ return  100; }
@@ -55,17 +75,20 @@ int main(int argc, char **argv) {
         lib_fun = (Table_static *(*)(int num_elem, int block_size))dlsym(handle,"create_table_static");
         if(dlerror() != NULL){ return 200; }
 
-
         Time time1 = start();
 
         Table_static *xd = (*lib_fun)(num, size);
 
         end(&time1);
 
-        printf("Creating table:\n");
+        printf("\nCreating table:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
+
+
+
+
 
         dlclose(handle);
     }

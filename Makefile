@@ -35,16 +35,22 @@ build-dynamic:
 	gcc main_dynamic.c time_full.o -o main_dynamic -ldl
 
 test-static:
-	$(info ######TESTING STATIC LIBRARY#######)
+	@echo "";
+	@echo "######TESTING STATIC LIBRARY######";
+	@echo "";
 	./main 10000 10000 0 10
 	./main 10000 10000 1 10
 
 test-shared:
-	$(info ######TESTING SHARED LIBRARY#######)
+	@echo "";
+	@echo "######TESTING SHARED LIBRARY######";
+	@echo "";
 	./main_shared 10000 10000 0 10
 	./main_shared 10000 10000 1 10
 
 test-dynamic:
-	$(info ######TESTING DYNAMIC LIBRARY#######)
+	@echo "";
+	@echo "######TESTING DYNAMIC LIBRARY######";
+	@echo "";
 	./main_dynamic 10000 10000 0 10
 	./main_dynamic 10000 10000 1 10

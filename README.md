@@ -2,4 +2,6 @@
 
 ## Usage
 
-sh`$ make all`
+```sh
+$ make all
+```

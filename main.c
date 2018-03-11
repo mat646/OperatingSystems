@@ -13,7 +13,7 @@
 int main(int argc, char **argv) {
 
     if (argc == 1) {
-        printf("Parametry wywolania:\n 1. liczba elementow tablicy\n 2. rozmiar bloku\n 3. sposob alokacji\n 4. operacje ");
+        printf("Parametry wywolania:\n 1. liczba elementow tablicy\n 2. rozmiar bloku\n 3. sposob alokacji\n 4. operacje\n");
         return 0;
     }
 
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     sscanf(argv[4], "%p", &ops);
 
     if (alloc_type == 1) {
-        printf("---Using dynamic allocation---\n");
+        printf("\n---Using dynamic allocation---\n");
 
         Time time1 = start();
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Creating table:\n");
+        printf("\nCreating table:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Deleting and adding blocks alternately:\n");
+        printf("\nDeleting and adding blocks alternately:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Deleting and adding blocks serially:\n");
+        printf("\nDeleting and adding blocks serially:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
@@ -76,13 +76,13 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Searching similar block:\n");
+        printf("\nSearching similar block:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
 
     } else {
-        printf("---Using static allocation---\n");
+        printf("\n---Using static allocation---\n");
 
         Time time1 = start();
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Creating table:\n");
+        printf("\nCreating table:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Adding blocks:\n");
+        printf("\nAdding blocks:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
@@ -114,10 +114,10 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Searching similar block:\n");
+        printf("\nSearching similar block:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
-        printf("real time: %f\n", time1.real_time);
+        printf("real time: %f\n\n", time1.real_time);
     }
 
     return 0;
