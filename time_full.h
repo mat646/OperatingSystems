@@ -6,9 +6,9 @@
 #define SETONE_TIME_FULL_H
 
 typedef struct Time {
-    float real_time;
-    float user_time;
-    float system_time;
+    __clock_t real_time;
+    __clock_t user_time;
+    __clock_t system_time;
 } Time;
 
 Time start();

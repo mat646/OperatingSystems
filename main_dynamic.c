@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
         if (dlerror() != NULL) { return 222; }
         (*block_handle)(main_table, 3);
 
-        char *a = (*block_handle)(main_table, (rand() % main_table->size));
+        (*block_handle)(main_table, (rand() % main_table->size));
 
         end(&time1);
 
@@ -114,16 +114,28 @@ int main(int argc, char **argv) {
         block_handle = (void (*)(Table_static *table, int index)) dlsym(handle, "add_block_static");
         if (dlerror() != NULL) { return 200; }
 
-        (*block_handle)(main_table, 2);
+        for (int i = 0; i < main_table->size; ++i) {
+            (*block_handle)(main_table, i);
+        }
 
         end(&time1);
 
         print(time1, "Adding blocks:");
 
+        time1 = start();
+
+        block_handle = (void (*)(Table_static *table, int index)) dlsym(handle, "search_table_static");
+        if (dlerror() != NULL) { return 200; }
+
+        (*block_handle)(main_table, 2);
+
+        end(&time1);
+
+        print(time1, "Searching similar block:");
+
         dlclose(handle);
 
         printf("\n");
-        //TODO searching
     }
 
 }

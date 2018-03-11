@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
         time1 = start();
 
-        char *a = search_table(main_table, (rand() % main_table->size));
+        search_table(main_table, (rand() % main_table->size));
 
         delete_table(main_table);
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 
         time1 = start();
 
-        char *a = search_table_static(main_table, (rand() % main_table->size));
+        search_table_static(main_table, (rand() % main_table->size));
 
         end(&time1);
 
