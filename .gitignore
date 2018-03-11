@@ -1,0 +1,14 @@
+.idea/
+CMakeLists.txt
+cmake-build-debug/
+main
+main.o
+main_dynamic
+main_shared
+table_manager.a
+table_manager.o
+table_manager.so
+table_manager_static.a
+table_manager_static.o
+table_manager_static.so
+time_full.o
