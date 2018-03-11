@@ -31,7 +31,7 @@ void add_block_static(Table_static *table, int index) {
 };
 
 char *search_table_static(Table_static *table, int index) {
-    int diff = 100000, closest = 0, sum = 0;
+    int diff = 1000000, closest = 0, sum = 0;
     for (int i = 0; i < table->block_size; ++i) {
         sum += table->values[index][i];
     }

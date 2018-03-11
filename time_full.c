@@ -26,7 +26,11 @@ void end(Time *start_time) {
     struct tms mtms;
     times(&mtms);
 
-    start_time->real_time = (rtsp.tv_nsec / 1000000) - start_time->real_time;
+    if ((rtsp.tv_nsec / 1000000) - start_time->real_time < 0) {
+        start_time->real_time = 1000 + (rtsp.tv_nsec / 1000000) - start_time->real_time;
+    } else {
+        start_time->real_time = (rtsp.tv_nsec / 1000000) - start_time->real_time;
+    }
     start_time->system_time = mtms.tms_stime - start_time->system_time;
     start_time->user_time = mtms.tms_utime - start_time->user_time;
 }

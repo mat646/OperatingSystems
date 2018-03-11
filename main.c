@@ -47,14 +47,30 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("Deleting and adding blocks:\n");
+        printf("Deleting and adding blocks alternately:\n");
         printf("user time: %f\n", time1.user_time);
         printf("system time: %f\n", time1.system_time);
         printf("real time: %f\n", time1.real_time);
 
         time1 = start();
 
-        char *a = search_table(xd, 2);
+        for (int i = 0; i < num; ++i) {
+            delete_block(xd,i);
+        }
+        for (int i = 0; i < num; ++i) {
+            add_block(xd, i);
+        }
+
+        end(&time1);
+
+        printf("Deleting and adding blocks serially:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
+
+        time1 = start();
+
+        char *a = search_table(xd, (rand()%xd->size));
 
         delete_table(xd);
 
@@ -94,7 +110,7 @@ int main(int argc, char **argv) {
 
         time1 = start();
 
-        char *a = search_table_static(xd, 2);
+        char *a = search_table_static(xd, (rand()%xd->size));
 
         end(&time1);
 

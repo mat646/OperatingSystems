@@ -12,7 +12,6 @@ Table *create_table(int num_elem, int block_size) {
     table->size = num_elem;
     table->block_size = block_size;
 
-    //dynamically with calloc
     table->values = (char **)calloc((size_t) num_elem, sizeof(char*));
     for (int i = 0; i < num_elem; ++i) {
         table->values[i] = (char *)calloc((size_t) block_size, sizeof(char));
@@ -48,7 +47,7 @@ char rand_char(){
 };
 
 char *search_table(struct Table *table, int index) {
-    int diff = 100000, closest = 0, sum = 0;
+    int diff = 1000000, closest = 0, sum = 0;
     for (int i = 0; i < table->block_size; ++i) {
         sum += table->values[index][i];
     }
