@@ -13,7 +13,7 @@ Time start() {
     times(&mtms);
 
     Time start_time;
-    start_time.real_time = rtsp.tv_sec;
+    start_time.real_time = rtsp.tv_nsec / 1000000;
     start_time.system_time = mtms.tms_stime;
     start_time.user_time = mtms.tms_utime;
 
@@ -26,7 +26,7 @@ void end(Time *start_time) {
     struct tms mtms;
     times(&mtms);
 
-    start_time->real_time = rtsp.tv_sec - start_time->real_time;
+    start_time->real_time = (rtsp.tv_nsec / 1000000) - start_time->real_time;
     start_time->system_time = mtms.tms_stime - start_time->system_time;
     start_time->user_time = mtms.tms_utime - start_time->user_time;
 }

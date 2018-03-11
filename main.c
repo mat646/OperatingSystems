@@ -1,3 +1,7 @@
+//
+// Created by Mateusz Sokol on 10.03.18.
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -8,13 +12,10 @@
 
 int main(int argc, char **argv) {
 
-    //srand(time(NULL));
-
     if (argc == 1) {
         printf("Parametry wywolania:\n 1. liczba elementow tablicy\n 2. rozmiar bloku\n 3. sposob alokacji\n 4. operacje ");
         return 0;
     }
-
 
     int num, size, alloc_type;
     char *ops;
@@ -23,7 +24,8 @@ int main(int argc, char **argv) {
     sscanf(argv[3], "%d", &alloc_type);
     sscanf(argv[4], "%p", &ops);
 
-    if (alloc_type == 1) { //dynamic
+    if (alloc_type == 1) {
+        printf("---Using dynamic allocation---\n");
 
         Time time1 = start();
 
@@ -31,7 +33,10 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("%f\n", time1.user_time);
+        printf("Creating table:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
 
         time1 = start();
 
@@ -42,32 +47,61 @@ int main(int argc, char **argv) {
 
         end(&time1);
 
-        printf("%f\n", time1.user_time);
+        printf("Deleting and adding blocks:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
 
         time1 = start();
 
         char *a = search_table(xd, 2);
 
-        printf("%s\n", a);
-
         delete_table(xd);
 
         end(&time1);
 
-        printf("%f\n", time1.user_time);
+        printf("Searching similar block:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
 
-    } else { //static
+    } else {
+        printf("---Using static allocation---\n");
+
+        Time time1 = start();
 
         Table_static *xd = create_table_static(num, size);
-        
-        printf("%c", xd->values[0][0]);
-        printf("%c", xd->values[0][1]);
-        printf("%c", xd->values[0][2]);
-        printf("%c", xd->values[0][3]);
-        printf("\n");
 
-        add_block_static(xd, 2);
+        end(&time1);
 
+        printf("Creating table:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
+
+        time1 = start();
+
+        for (int i = 0; i < num; ++i) {
+            add_block_static(xd, i);
+        }
+
+        end(&time1);
+
+        printf("Adding blocks:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
+
+        time1 = start();
+
+        char *a = search_table_static(xd, 2);
+
+        end(&time1);
+
+        printf("Searching similar block:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
     }
 
     return 0;

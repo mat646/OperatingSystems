@@ -32,22 +32,19 @@ build-dynamic:
 	gcc -fPIC -c table_manager.c table_manager_static.c
 	gcc -shared -o table_manager.so table_manager.o
 	gcc -shared -o table_manager_static.so table_manager_static.o
-	gcc main_dynamic.c -o main_dynamic -ldl
+	gcc main_dynamic.c time_full.o -o main_dynamic -ldl
 
 test-static:
-	$(info testing static with static alloc)
-	./main 1000 1000 0 10
-	$(info testing static with dynamic alloc)
-	./main 1000 1000 1 10
+	$(info ######TESTING STATIC LIBRARY#######)
+	./main 10000 10000 0 10
+	./main 10000 10000 1 10
 
 test-shared:
-	$(info testing shared with static alloc)
-	./main_shared 1000 1000 0 10
-	$(info testing shared with dynamic alloc)
-	./main_shared 1000 1000 1 10
+	$(info ######TESTING SHARED LIBRARY#######)
+	./main_shared 10000 10000 0 10
+	./main_shared 10000 10000 1 10
 
 test-dynamic:
-	$(info testing dynamic with static alloc)
-	./main_dynamic 1000 1000 0 10
-	$(info testing dynamic with dynamic alloc)
-	./main_dynamic 1000 1000 1 10
+	$(info ######TESTING DYNAMIC LIBRARY#######)
+	./main_dynamic 10000 10000 0 10
+	./main_dynamic 10000 10000 1 10

@@ -7,18 +7,14 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 #include "table_manager.h"
+#include "time_full.h"
+#include "table_manager_static.h"
 
 int main(int argc, char **argv) {
 
-    srand(time(NULL));
     if (argc == 1) {
         printf("Parametry wywolania:\n 1. liczba elementow tablicy\n 2. rozmiar bloku\n 3. sposob alokacji\n 4. operacje ");
         return 0;
-    }
-
-    for (int i = 0; i < 10; ++i) {
-        clock_t a = clock();
-        printf("%f\n", (float)a);
     }
 
     int num, size, alloc_type;
@@ -29,22 +25,49 @@ int main(int argc, char **argv) {
     sscanf(argv[4], "%p", &ops);
 
     if (alloc_type == 1) {
+        printf("---Using dynamic allocation---\n");
+
         void *handle = dlopen("./table_manager.so", RTLD_LAZY);
-        if(!handle){ return  100; }
+        if(!handle){ return  120; }
         Table *(*lib_fun)(int num_elem, int block_size);
         lib_fun = (Table *(*)(int num_elem, int block_size))dlsym(handle,"create_table");
-        if(dlerror() != NULL){ return 200; }
+        if(dlerror() != NULL){ return 220; }
+
+
+        Time time1 = start();
+
         Table *xd = (*lib_fun)(num, size);
+
+        end(&time1);
+
+        printf("Creating table:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
+
         dlclose(handle);
     } else {
+        printf("---Using static allocation---\n");
+
         void *handle = dlopen("./table_manager_static.so", RTLD_LAZY);
         if(!handle){ return  100; }
-        Table *(*lib_fun)(int num_elem, int block_size);
-        lib_fun = (Table *(*)(int num_elem, int block_size))dlsym(handle,"create_table_static");
+        Table_static *(*lib_fun)(int num_elem, int block_size);
+        lib_fun = (Table_static *(*)(int num_elem, int block_size))dlsym(handle,"create_table_static");
         if(dlerror() != NULL){ return 200; }
-        Table *xd = (*lib_fun)(num, size);
+
+
+        Time time1 = start();
+
+        Table_static *xd = (*lib_fun)(num, size);
+
+        end(&time1);
+
+        printf("Creating table:\n");
+        printf("user time: %f\n", time1.user_time);
+        printf("system time: %f\n", time1.system_time);
+        printf("real time: %f\n", time1.real_time);
+
         dlclose(handle);
     }
-
 
 }
