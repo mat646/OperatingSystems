@@ -40,19 +40,28 @@ test-static:
 	@echo "";
 	@echo "######TESTING STATIC LIBRARY######";
 	@echo "";
-	./main 10000 10000 0 10
-	./main 10000 10000 1 10
+	./main 10000 10000 0 123
+	./main 10000 10000 1 123
 
 test-shared:
 	@echo "";
 	@echo "######TESTING SHARED LIBRARY######";
 	@echo "";
-	./main_shared 10000 10000 0 10
-	./main_shared 10000 10000 1 10
+	./main_shared 10000 10000 0 123
+	./main_shared 10000 10000 1 123
 
 test-dynamic:
 	@echo "";
 	@echo "######TESTING DYNAMIC LIBRARY######";
 	@echo "";
-	./main_dynamic 10000 10000 0 10
-	./main_dynamic 10000 10000 1 10
+	./main_dynamic 10000 10000 0 123
+	./main_dynamic 10000 10000 1 123
+
+writing-to-file:
+	@echo "Writing to files...";
+	make > ./results3a.txt
+	make Opt=1 > ./results3b1.txt
+	make Opt=2 > ./results3b2.txt
+	make Opt=3 > ./results3b3.txt
+	make Opt=s > ./results3bs.txt
+	@echo "Finished";

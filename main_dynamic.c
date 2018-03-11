@@ -2,7 +2,6 @@
 // Created by Mateusz Sokol on 10.03.18.
 //
 
-#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>

@@ -10,11 +10,13 @@
 Time start() {
     struct timespec rtsp;
     clock_gettime(CLOCK_REALTIME, &rtsp);
+
+    Time start_time;
+    start_time.real_time = rtsp.tv_nsec + rtsp.tv_sec*1000000000;
+
     struct tms mtms;
     times(&mtms);
 
-    Time start_time;
-    start_time.real_time = rtsp.tv_nsec;
     start_time.system_time = mtms.tms_stime;
     start_time.user_time = mtms.tms_utime;
 
@@ -27,24 +29,14 @@ void end(Time *start_time) {
     struct timespec rtsp;
     clock_gettime(CLOCK_REALTIME, &rtsp);
 
-    __clock_t real_diff = rtsp.tv_nsec - start_time->real_time;
-
-    if (real_diff < 0) {
-        start_time->real_time = 1000000000 + real_diff;
-    } else {
-        start_time->real_time = real_diff;
-    }
-
+    start_time->real_time = (rtsp.tv_nsec + rtsp.tv_sec*1000000000) - start_time->real_time;
     start_time->system_time = mtms.tms_stime - start_time->system_time;
     start_time->user_time = mtms.tms_utime - start_time->user_time;
 }
 
 void print(Time time1, char *label) {
-    if (time1.user_time > time1.real_time/1000000)
-        time1.real_time += 60000000;
-
     printf("\n%s\n", label);
-    printf("user time: %f\n", (float)time1.user_time);
-    printf("system time: %f\n", (float)time1.system_time);
+    printf("user time: %f\n", (float)(time1.user_time * 10000000.0) / CLOCKS_PER_SEC);
+    printf("system time: %f\n", (float)(time1.system_time * 1000000.0) / CLOCKS_PER_SEC);
     printf("real time: %f\n", (float)time1.real_time/1000000);
 }

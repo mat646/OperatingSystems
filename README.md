@@ -9,4 +9,3 @@ $ make all
 ## TODO
 
 - parsing instructions
-- optimization options

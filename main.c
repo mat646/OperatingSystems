@@ -4,8 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <sys/times.h>
 #include "table_manager.h"
 #include "table_manager_static.h"
 #include "time_full.h"
@@ -18,11 +16,11 @@ int main(int argc, char **argv) {
     }
 
     int num, size, alloc_type;
-    char *ops;
+    char ops[30];
     sscanf(argv[1], "%d", &num);
     sscanf(argv[2], "%d", &size);
     sscanf(argv[3], "%d", &alloc_type); // 1 - dynamic, 0 - static
-    sscanf(argv[4], "%p", &ops); // 1 - del&add alter, 2 - del&add serially, 3 - searching
+    sscanf(argv[4], "%s", &ops[0]); // 1 - del&add alter, 2 - del&add serially, 3 - searching
 
     if (alloc_type == 1) {
         printf("\n---Using dynamic allocation---\n");
