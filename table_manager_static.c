@@ -20,8 +20,8 @@ Table_static *create_table_static(int num_elem, int block_size) {
     return table;
 };
 
-char rand_char_static(){
-    return (char)((rand() % 24) + 97);
+char rand_char_static() {
+    return (char) ((rand() % 24) + 97);
 };
 
 void add_block_static(Table_static *table, int index) {

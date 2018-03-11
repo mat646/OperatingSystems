@@ -12,9 +12,9 @@ Table *create_table(int num_elem, int block_size) {
     table->size = num_elem;
     table->block_size = block_size;
 
-    table->values = (char **)calloc((size_t) num_elem, sizeof(char*));
+    table->values = (char **) calloc((size_t) num_elem, sizeof(char *));
     for (int i = 0; i < num_elem; ++i) {
-        table->values[i] = (char *)calloc((size_t) block_size, sizeof(char));
+        table->values[i] = (char *) calloc((size_t) block_size, sizeof(char));
     }
 
     //filling with data
@@ -31,7 +31,7 @@ void delete_table(Table *table) {
 };
 
 void add_block(Table *table, int index) {
-    table->values[index] = (char *)calloc((size_t) table->block_size, sizeof(char));
+    table->values[index] = (char *) calloc((size_t) table->block_size, sizeof(char));
 
     for (int i = 0; i < table->block_size; ++i) {
         table->values[index][i] = rand_char();
@@ -42,8 +42,8 @@ void delete_block(struct Table *table, int index) {
     free(table->values[index]);
 };
 
-char rand_char(){
-    return (char)((rand() % 24) + 97);
+char rand_char() {
+    return (char) ((rand() % 24) + 97);
 };
 
 char *search_table(struct Table *table, int index) {
