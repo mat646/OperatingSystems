@@ -15,12 +15,15 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    int num, size, alloc_type;
+    int num, size, alloc_type, opt;
     char ops[30];
+
     sscanf(argv[1], "%d", &num);
     sscanf(argv[2], "%d", &size);
     sscanf(argv[3], "%d", &alloc_type); // 1 - dynamic, 0 - static
-    sscanf(argv[4], "%s", &ops[0]); // 1 - del&add alter, 2 - del&add serially, 3 - searching
+    sscanf(argv[4], "%d", &opt); // 1 - del&add alter, 2 - del&add serially, 3 - searching
+
+    sprintf(ops, "%d", opt);
 
     if (alloc_type == 1) {
         printf("\n---Using dynamic allocation---\n");
@@ -33,39 +36,45 @@ int main(int argc, char **argv) {
 
         print(time1, "Creating table:");
 
-        time1 = start();
+        if (ops[0] == '1' || ops[1] == '1' || ops[2] == '1') {
+            time1 = start();
 
-        for (int i = 0; i < num; ++i) {
-            delete_block(main_table, i);
-            add_block(main_table, i);
+            for (int i = 0; i < num; ++i) {
+                delete_block(main_table, i);
+                add_block(main_table, i);
+            }
+
+            end(&time1);
+
+            print(time1, "Deleting and adding blocks alternately:");
         }
 
-        end(&time1);
+        if (ops[0] == '2' || ops[1] == '2' || ops[2] == '2') {
+            time1 = start();
 
-        print(time1, "Deleting and adding blocks alternately:");
+            for (int i = 0; i < num; ++i) {
+                delete_block(main_table, i);
+            }
+            for (int i = 0; i < num; ++i) {
+                add_block(main_table, i);
+            }
 
-        time1 = start();
+            end(&time1);
 
-        for (int i = 0; i < num; ++i) {
-            delete_block(main_table, i);
+            print(time1, "Deleting and adding blocks serially:");
         }
-        for (int i = 0; i < num; ++i) {
-            add_block(main_table, i);
+
+        if (ops[0] == '3' || ops[1] == '3' || ops[2] == '3') {
+            time1 = start();
+
+            search_table(main_table, (rand() % main_table->size));
+
+            delete_table(main_table);
+
+            end(&time1);
+
+            print(time1, "Searching similar block:");
         }
-
-        end(&time1);
-
-        print(time1, "Deleting and adding blocks serially:");
-
-        time1 = start();
-
-        search_table(main_table, (rand() % main_table->size));
-
-        delete_table(main_table);
-
-        end(&time1);
-
-        print(time1, "Searching similar block:");
 
     } else {
         printf("\n---Using static allocation---\n");
@@ -78,25 +87,29 @@ int main(int argc, char **argv) {
 
         print(time1, "Creating table:");
 
-        time1 = start();
+        if (ops[0] == '1' || ops[1] == '1' || ops[2] == '1') {
+            time1 = start();
 
-        for (int i = 0; i < num; ++i) {
-            add_block_static(main_table, i);
+            for (int i = 0; i < num; ++i) {
+                add_block_static(main_table, i);
+            }
+
+            end(&time1);
+
+            print(time1, "Adding blocks:");
         }
 
-        end(&time1);
+        if (ops[0] == '3' || ops[1] == '3' || ops[2] == '3') {
+            time1 = start();
 
-        print(time1, "Adding blocks:");
+            search_table_static(main_table, (rand() % main_table->size));
 
-        time1 = start();
+            end(&time1);
 
-        search_table_static(main_table, (rand() % main_table->size));
+            print(time1, "Searching similar block:");
 
-        end(&time1);
-
-        print(time1, "Searching similar block:");
-
-        printf("\n");
+            printf("\n");
+        }
     }
 
     return 0;

@@ -5,7 +5,3 @@
 ```sh
 $ make all
 ```
-
-## TODO
-
-- parsing instructions
