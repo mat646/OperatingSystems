@@ -30,6 +30,12 @@ void add_block_static(Table_static *table, int index) {
     }
 };
 
+void delete_block_static(Table_static *table, int index) {
+    for (int i = 0; i < table->block_size; ++i) {
+        table->values[index][i] = 0;
+    }
+};
+
 char *search_table_static(Table_static *table, int index) {
     int diff = 1000000, closest = 0, sum = 0;
     for (int i = 0; i < table->block_size; ++i) {

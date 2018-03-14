@@ -15,6 +15,8 @@ Table_static *create_table_static(int num_elem, int block_size);
 
 void add_block_static(Table_static *table, int index);
 
+void delete_block_static(Table_static *table, int index);
+
 char *search_table_static(Table_static *table, int index);
 
 char rand_char_static();

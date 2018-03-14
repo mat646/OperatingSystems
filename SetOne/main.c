@@ -92,11 +92,27 @@ int main(int argc, char **argv) {
 
             for (int i = 0; i < num; ++i) {
                 add_block_static(main_table, i);
+                delete_block_static(main_table, i);
             }
 
             end(&time1);
 
-            print(time1, "Adding blocks:");
+            print(time1, "Deleting and adding blocks alternately:");
+        }
+
+        if (ops[0] == '2' || ops[1] == '2' || ops[2] == '2') {
+            time1 = start();
+
+            for (int i = 0; i < num; ++i) {
+                add_block_static(main_table, i);
+            }
+            for (int i = 0; i < num; ++i) {
+                delete_block_static(main_table, i);
+            }
+
+            end(&time1);
+
+            print(time1, "Deleting and adding blocks serially:");
         }
 
         if (ops[0] == '3' || ops[1] == '3' || ops[2] == '3') {
