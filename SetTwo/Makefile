@@ -1,16 +1,42 @@
+.PHONY: all test
+
 CC=gcc -Wall
+REC_SIZE=100
+AMOUNT=10
+
+all:
+	make build
+	make test-full-suit
 
 build:
 	$(CC) main.c file_manager.h  file_manager.c time_full.h time_full.c -o main
 
-test1:
-	./main test 4 10 sys
+test-full-suit:
+	REC_SIZE=4
+	AMOUNT=10
+	make test
+	REC_SIZE=512
+	AMOUNT=10
+	make test
 
-test2:
-	./main test 512 10 sys
+test:
+	make generate
+	make copy-sys
+	make sort-sys
+	make copy-lib
+	make sort-lib
 
-test3:
-	./main test 4096 10 sys
+generate:
+	./main generate test $(REC_SIZE) $(AMOUNT)
 
-test4:
-	./main test 8192 10 sys
+copy-sys:
+	./main copy test test2 $(REC_SIZE) $(AMOUNT) sys
+
+copy-lib:
+	./main copy test test3 $(REC_SIZE) $(AMOUNT) lib
+
+sort-sys:
+	./main sort test2 $(REC_SIZE) $(AMOUNT) sys
+
+sort-lib:
+	./main sort test3 $(REC_SIZE) $(AMOUNT) lib
