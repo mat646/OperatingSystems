@@ -40,3 +40,8 @@ sort-sys:
 
 sort-lib:
 	./main sort test3 $(REC_SIZE) $(AMOUNT) lib
+
+
+build-dir-manager:
+	$(CC) main_dir.c -o main_dir
+
