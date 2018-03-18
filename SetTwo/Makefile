@@ -44,6 +44,7 @@ sort-lib:
 
 build-dir-manager:
 	$(CC) main_dir.c -o main_dir
+	$(CC) main_nftw.c -o main_nftw
 
 test-dir-manager:
-	./main_dir . \< 2018-01-01
+	./main_dir . \> 2018-01-01

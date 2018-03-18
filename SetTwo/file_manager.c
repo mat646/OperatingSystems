@@ -48,25 +48,25 @@ void sort_sys(file source) {
 void sort_lib(file source) {
     char block1[source.record_size];
     char block2[source.record_size];
-    FILE *plik = fopen(source.file_name, "r+");
-    if (plik) {
+    FILE *file = fopen(source.file_name, "r+");
+    if (file) {
         for (int i = 0; i < source.record_amount; ++i) {
             for (int j = 0; j < source.record_amount-1; ++j) {
-                fseek(plik, j * source.record_size, 0);
-                fread(block1, sizeof(char), source.record_size, plik);
-                fseek(plik, (j+1) * source.record_size, 0);
-                fread(block2, sizeof(char), source.record_size, plik);
+                fseek(file, j * source.record_size, 0);
+                fread(block1, sizeof(char), source.record_size, file);
+                fseek(file, (j+1) * source.record_size, 0);
+                fread(block2, sizeof(char), source.record_size, file);
                 if (block1[0] > block2[0]) {
-                    fseek(plik, j * source.record_size, 0);
-                    fwrite(block2, sizeof(char), source.record_size, plik);
-                    fseek(plik, (j+1) * source.record_size, 0);
-                    fwrite(block1, sizeof(char), source.record_size, plik);
+                    fseek(file, j * source.record_size, 0);
+                    fwrite(block2, sizeof(char), source.record_size, file);
+                    fseek(file, (j+1) * source.record_size, 0);
+                    fwrite(block1, sizeof(char), source.record_size, file);
                 }
             }
         }
     }
 
-    fclose(plik);
+    fclose(file);
 };
 
 void copy_sys(file source, file target) {
@@ -83,15 +83,15 @@ void copy_sys(file source, file target) {
 
 void copy_lib(file source, file target) {
     char napis[source.record_size];
-    FILE *plik = fopen(source.file_name, "r");
-    FILE *plik2 = fopen(target.file_name, "w");
-    if (plik && plik2) {
+    FILE *file = fopen(source.file_name, "r");
+    FILE *file2 = fopen(target.file_name, "w");
+    if (file && file2) {
         for (int i = 0; i < source.record_amount; ++i) {
-            fread(napis, sizeof(char), source.record_size, plik);
-            fwrite(napis, sizeof(char), source.record_size, plik2);
+            fread(napis, sizeof(char), source.record_size, file);
+            fwrite(napis, sizeof(char), source.record_size, file2);
         }
 
-        fclose(plik);
-        fclose(plik2);
+        fclose(file);
+        fclose(file2);
     }
 };
