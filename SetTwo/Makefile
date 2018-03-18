@@ -45,3 +45,5 @@ sort-lib:
 build-dir-manager:
 	$(CC) main_dir.c -o main_dir
 
+test-dir-manager:
+	./main_dir . \< 2018-01-01

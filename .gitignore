@@ -2,6 +2,7 @@
 CMakeLists.txt
 cmake-build-debug/
 main
+main_dir
 main.o
 main_dynamic
 main_shared
