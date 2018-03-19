@@ -6,18 +6,24 @@ AMOUNT=10
 
 all:
 	make build
-	make test-full-suit
+	make test-first-suit
 
 build:
 	$(CC) main.c file_manager.h  file_manager.c time_full.h time_full.c -o main
+	$(CC) main_dir.c -o main_dir
+	$(CC) main_nftw.c -o main_nftw
 
-test-full-suit:
+test-first-suit:
 	REC_SIZE=4
 	AMOUNT=10
 	make test
 	REC_SIZE=512
 	AMOUNT=10
 	make test
+
+test-second-suit:
+	make test-dir-manager
+	make test-nftw-manager
 
 test:
 	make generate
@@ -41,10 +47,8 @@ sort-sys:
 sort-lib:
 	./main sort test3 $(REC_SIZE) $(AMOUNT) lib
 
-
-build-dir-manager:
-	$(CC) main_dir.c -o main_dir
-	$(CC) main_nftw.c -o main_nftw
-
 test-dir-manager:
 	./main_dir . \> 2018-01-01
+
+test-nftw-manager:
+	./main_nftw . \> 2018-01-01

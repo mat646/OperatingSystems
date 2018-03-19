@@ -18,7 +18,7 @@ void print(char *path, char *time, struct stat status);
 int main(int argc, char **argv) {
 
     if (argc == 1) {
-        printf("Parametry wywolania:\n 1. sciezka\n");
+        printf("Parametry wywolania:\n 1. sciezka\n 2. Symbol\n 3. Data\n");
         return 0;
     }
 
@@ -46,10 +46,10 @@ void search_dir(char path[100], char sign[10], time_t date) {
             strcat(path1, "/");
             strcat(path1, file->d_name);
 
-            struct stat ed;
-            stat(path1, &ed);
+            struct stat status;
+            stat(path1, &status);
 
-            long timestamp = (ed.st_mtim.tv_nsec / 1000000000 + ed.st_mtim.tv_sec);
+            long timestamp = (status.st_mtim.tv_nsec / 1000000000 + status.st_mtim.tv_sec);
 
             char buff[20];
             strftime(buff, 20, "%Y-%m-%d", localtime(&timestamp));
@@ -57,21 +57,21 @@ void search_dir(char path[100], char sign[10], time_t date) {
             if (sign[0] == '<') {
                 if (timestamp < date) {
                     printf("\n%s\n", file->d_name);
-                    print(path1, buff, ed);
+                    print(path1, buff, status);
                 }
             } else if (sign[0] == '>') {
                 if (timestamp > date) {
                     printf("\n%s\n", file->d_name);
-                    print(path1, buff, ed);
+                    print(path1, buff, status);
                 }
             } else if (sign[0] == '=') {
-                if (timestamp == date) {
+                if (abs(timestamp - date) < 90000) {
                     printf("\n%s\n", file->d_name);
-                    print(path1, buff, ed);
+                    print(path1, buff, status);
                 }
             }
 
-            if (!S_ISLNK(ed.st_mode) && S_ISDIR(ed.st_mode)) {
+            if (!S_ISLNK(status.st_mode) && S_ISDIR(status.st_mode)) {
                 search_dir(path1, sign, date);
             }
         }

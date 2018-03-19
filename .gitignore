@@ -3,6 +3,7 @@ CMakeLists.txt
 cmake-build-debug/
 main
 main_dir
+main_nftw
 main.o
 main_dynamic
 main_shared
