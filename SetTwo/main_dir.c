@@ -47,7 +47,7 @@ void search_dir(char path[100], char sign[10], time_t date) {
             strcat(path1, file->d_name);
 
             struct stat status;
-            stat(path1, &status);
+            lstat(path1, &status);
 
             long timestamp = (status.st_mtim.tv_nsec / 1000000000 + status.st_mtim.tv_sec);
 
@@ -96,7 +96,11 @@ void print(char *path, char *time, struct stat status) {
     printf("\nSize in bytes: %ld", status.st_size);
     printf("\nModify time: %s\n", time);
     printf("File Permissions: ");
-    printf((S_ISDIR(status.st_mode)) ? "d" : "-");
+    if (S_ISDIR(status.st_mode)) {
+        printf("d");
+    } else if (S_ISLNK(status.st_mode)) {
+        printf("l");
+    } else printf("-");
     printf((status.st_mode & S_IRUSR) ? "r" : "-");
     printf((status.st_mode & S_IWUSR) ? "w" : "-");
     printf((status.st_mode & S_IXUSR) ? "x" : "-");
