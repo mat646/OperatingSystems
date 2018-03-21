@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 
     srand ( time(NULL) );
 
-    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL || argv[4] == NULL || argv[5] == NULL) {
+    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL || argv[4] == NULL) {
         printf("Parametry wywolania:\n 1. operacja\n 2. nazwa pliku/plikow\n 3. rozmiar rekordu\n 4. liczba rekordow\n 5. typ funkcji\n");
         return 0;
     }
@@ -21,16 +21,19 @@ int main(int argc, char **argv) {
     char name[20], name_copy[20], action[10], type[5], label[30];
     sscanf(argv[1], "%s", action);
     if(action[0] == 'c') {
+        // params for copying
         sscanf(argv[2], "%s", name);
         sscanf(argv[3], "%s", name_copy);
         sscanf(argv[4], "%d", &record_size);
         sscanf(argv[5], "%d", &record_amount);
         sscanf(argv[6], "%s", type);
     } else {
+        //params for generating
         sscanf(argv[2], "%s", name);
         sscanf(argv[3], "%d", &record_size);
         sscanf(argv[4], "%d", &record_amount);
         if(action[0] != 'g')
+            //additional param for sorting
             sscanf(argv[5], "%s", type);
     }
 
