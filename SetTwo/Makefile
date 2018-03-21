@@ -1,8 +1,8 @@
 .PHONY: all test
 
 CC=gcc -Wall
-REC_SIZE=100
-AMOUNT=10
+REC_SIZE=4
+AMOUNT=500
 
 all:
 	make build
@@ -14,16 +14,7 @@ build:
 	$(CC) main_nftw.c -o main_nftw
 
 test-first-suit:
-	REC_SIZE=4
-	AMOUNT=10
 	make test
-	REC_SIZE=512
-	AMOUNT=10
-	make test
-
-test-second-suit:
-	make test-dir-manager
-	make test-nftw-manager
 
 test:
 	make generate
@@ -46,6 +37,25 @@ sort-sys:
 
 sort-lib:
 	./main sort test3 $(REC_SIZE) $(AMOUNT) lib
+
+
+test-second-suit:
+	make set-up-dirs
+	make test-dir-manager
+	make test-nftw-manager
+
+set-up-dirs:
+	mkdir test_dir
+	touch test_dir/file1
+	echo testtesttesttest > test_dir/file1
+	touch test_dir/file2
+	echo zxvczxvcz > test_dir/file2
+	mkdir test_dir/another_dir
+	mkdir test_dir/yet_another_dir
+	touch test_dir/another_dir/file3
+	echo qwertyqwerty > test_dir/another_dir/file3
+	ln -s test_dir/another_dir .
+	touch test_dir/yet_another_dir/file4
 
 test-dir-manager:
 	./main_dir . \> 2018-01-01

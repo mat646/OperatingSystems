@@ -26,11 +26,11 @@ int print(const char *path, const struct stat *status, int tflag, struct FTW *ft
 
     long timestamp = status->st_mtime;
 
-    if (sign[0] == '<') {
+    if (sign[0] == '>') {
         if (timestamp < date) {
             return 0;
         }
-    } else if (sign[0] == '>') {
+    } else if (sign[0] == '<') {
         if (timestamp > date) {
             return 0;
         }
@@ -47,7 +47,11 @@ int print(const char *path, const struct stat *status, int tflag, struct FTW *ft
     printf("\nSize in bytes: %ld", status->st_size);
     printf("\nModify time: %s\n", timeBuffer);
     printf("File Permissions: ");
-    printf((S_ISDIR(status->st_mode)) ? "d" : "-");
+    if (S_ISDIR(status->st_mode)) {
+        printf("d");
+    } else if (S_ISLNK(status->st_mode)) {
+        printf("l");
+    } else printf("-");
     printf((status->st_mode & S_IRUSR) ? "r" : "-");
     printf((status->st_mode & S_IWUSR) ? "w" : "-");
     printf((status->st_mode & S_IXUSR) ? "x" : "-");
@@ -65,8 +69,8 @@ int print(const char *path, const struct stat *status, int tflag, struct FTW *ft
 
 int main(int argc, char **argv) {
 
-    if (argc == 1) {
-        printf("Parametry wywolania:\n 1. sciezka\n 2. Symbol\n 3. Data\n");
+    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
+        printf("Parametry wywolania:\n 1. operacja\n 2. nazwa pliku/plikow\n 3. rozmiar rekordu\n 4. liczba rekordow\n 5. typ funkcji\n");
         return 0;
     }
 

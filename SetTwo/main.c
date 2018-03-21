@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 
     srand ( time(NULL) );
 
-    if (argc == 1) {
+    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL || argv[4] == NULL || argv[5] == NULL) {
         printf("Parametry wywolania:\n 1. operacja\n 2. nazwa pliku/plikow\n 3. rozmiar rekordu\n 4. liczba rekordow\n 5. typ funkcji\n");
         return 0;
     }

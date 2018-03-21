@@ -17,8 +17,8 @@ void print(char *path, char *time, struct stat status);
 
 int main(int argc, char **argv) {
 
-    if (argc == 1) {
-        printf("Parametry wywolania:\n 1. sciezka\n 2. Symbol\n 3. Data\n");
+    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
+        printf("Parametry wywolania:\n 1. operacja\n 2. nazwa pliku/plikow\n 3. rozmiar rekordu\n 4. liczba rekordow\n 5. typ funkcji\n");
         return 0;
     }
 
