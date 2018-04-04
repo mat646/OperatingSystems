@@ -7,33 +7,52 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
-    pid_t child_pid;
-    printf("PID glownego programu: %d\n", (int)getpid());
-    child_pid = vfork();
-    if(child_pid!=0) {
-        printf("Proces rodzica: Proces rodzica ma pid:%d\n", (int)getpid());
-        printf("Proces rodzica: Proces dziecka ma pid:%d\n", (int)child_pid);
-    } else {
-        printf("Proces dziecka: Proces rodzica ma pid:%d\n",(int)getppid());
-        printf("Proces dziecka: Proces dziecka ma pid:%d\n",(int)getpid());
-        _exit(1);
+
+    if (argc == 1 || argv[1] == NULL) {
+        printf("Parametry wywolania:\n 1. ścieżka do pliku\n");
+        return 0;
     }
 
-    char fileName[20];
+    char fileName[40];
     sscanf(argv[1], "%s", fileName);
 
-    pid_t pid = vfork();
-
-    if(pid != 0) {
-        execl(fileName, "ls");
-        int status;
-        wait(&status);
-        exit(1);
+    FILE* file = fopen(fileName, "r");
+    if (!file) {
+        printf("Invalid path");
+        return 1;
     }
 
+    char command[100];
+    char *params[100];
+    while(fgets(command, 100, file)){
+        int argumentNumber = 1;
+        char *token;
+        token = strtok(command, " \n\t");
 
+        while((params[argumentNumber] = strtok(NULL, " \n\t")) != NULL){
+            argumentNumber++;
+            if(argumentNumber >= 10){
+                printf("too many arguments");
+                return 1;
+            }
+        };
+        params[0] = token;
 
+        pid_t pid = vfork();
+        if(pid == 0) {
+            execvp(token, params);
+            _exit(1);
+        }
+        int status;
+        wait(&status);
+        if (status) {
+            printf("Error while executing");
+            return 1;
+        }
+    }
+    fclose(file);
     return 0;
 }

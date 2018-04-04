@@ -4,6 +4,8 @@ cmake-build-debug/
 main
 main_dir
 main_nftw
+main_dir_fork
+main_with_restr
 main.o
 main_dynamic
 main_shared
