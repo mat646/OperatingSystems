@@ -1,4 +1,6 @@
-# SysOpy
+# OperatingSystems
+
+Sets of programs completed for "Operating Systems" course.
 
 ## Content
 
@@ -17,7 +19,12 @@ and searching through directories.
 
 ### Set three
 
-...
+Simple interpreter for bash commands. 
+Set contains process management with given resources limits.
+
+### Set Four
+
+Signals.
 
 ## Usage
 
