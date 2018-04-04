@@ -6,6 +6,7 @@ main_dir
 main_nftw
 main_dir_fork
 main_with_restr
+looper
 main.o
 main_dynamic
 main_shared

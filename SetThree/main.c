@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
         int status;
         wait(&status);
         if (status) {
-            printf("Error while executing");
+            printf("Error while executing %s", params[0]);
             return 1;
         }
     }

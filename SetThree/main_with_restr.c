@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/resource.h>
+#include <time.h>
+#include "time_full.h"
+
+void set_limits(rlim_t time_restr, rlim_t mem_restr);
 
 int main(int argc, char **argv) {
 
@@ -23,7 +27,9 @@ int main(int argc, char **argv) {
     sscanf(argv[2], "%d", &timeConstraint);
     sscanf(argv[3], "%d", &memConstraint);
 
-    FILE* file = fopen(fileName, "r");
+    memConstraint *= 1024 * 1024;
+
+    FILE *file = fopen(fileName, "r");
     if (!file) {
         printf("Invalid path");
         return 1;
@@ -34,24 +40,27 @@ int main(int argc, char **argv) {
 
     char command[100];
     char *params[100];
-    while(fgets(command, 100, file)){
+    while (fgets(command, 100, file)) {
         int argumentNumber = 1;
         char *token;
         token = strtok(command, " \n\t");
 
-        while((params[argumentNumber] = strtok(NULL, " \n\t")) != NULL){
+        while ((params[argumentNumber] = strtok(NULL, " \n\t")) != NULL) {
             argumentNumber++;
-            if(argumentNumber >= 10){
+            if (argumentNumber >= 10) {
                 printf("too many arguments");
                 return 1;
             }
         };
         params[0] = token;
 
-        pid_t pid = vfork();
-        if(pid == 0) {
+        Time time1;
 
-            //TODO
+        pid_t pid = vfork();
+        if (pid == 0) {
+            set_limits((rlim_t) timeConstraint, (rlim_t) memConstraint);
+
+            time1 = start();
 
             execvp(token, params);
             _exit(1);
@@ -59,10 +68,34 @@ int main(int argc, char **argv) {
         int status;
         wait(&status);
         if (status) {
-            printf( "Error while executing");
+            printf("Error while executing %s\n", params[0]);
             return 1;
+        } else {
+            end(&time1);
+            print(time1, params[0]);
+            printf("\n");
         }
     }
     fclose(file);
     return 0;
+}
+
+void set_limits(rlim_t time_restr, rlim_t mem_restr) {
+
+    struct rlimit rlim_cpu;
+    rlim_cpu.rlim_cur = 1;
+    rlim_cpu.rlim_max = time_restr;
+    if (setrlimit(RLIMIT_CPU, &rlim_cpu) == -1) {
+        perror("Set cpu limit failed");
+        _exit(1);
+    }
+
+    struct rlimit rlim_mem;
+    rlim_mem.rlim_cur = mem_restr / 2;
+    rlim_mem.rlim_max = mem_restr;
+    if (setrlimit(RLIMIT_AS, &rlim_mem) == -1) {
+        perror("Set mem limit failed");
+        _exit(1);
+    }
+
 }
