@@ -24,7 +24,7 @@ Set contains process management with given resources limits.
 
 ### Set Four
 
-Signals.
+Basic usage of signals. 
 
 ## Usage
 
