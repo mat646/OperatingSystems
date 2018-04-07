@@ -11,7 +11,7 @@
 int global_state;
 
 void sig_stop(int signum) {
-    if(global_state == 1) {
+    if (global_state == 1) {
         global_state = 0;
         printf("Oczekuje na CTRL+Z - kontynuacja albo CTRL+C - zakonczenie programu\n");
         fflush(stdout);
@@ -27,7 +27,7 @@ void sig_int(int signum) {
 
 int main() {
 
-    if(signal(SIGINT, sig_int) == SIG_ERR) {
+    if (signal(SIGINT, sig_int) == SIG_ERR) {
         printf("Cannot proceed SIGINT\n");
         exit(1);
     }
@@ -37,7 +37,7 @@ int main() {
     sigemptyset(&sigaction1.sa_mask);
     sigaction1.sa_flags = 0;
 
-    if(sigaction(SIGTSTP, &sigaction1, NULL) == -1) {
+    if (sigaction(SIGTSTP, &sigaction1, NULL) == -1) {
 
         printf("Cannot proceed SIGINT\n");
         exit(1);
@@ -45,9 +45,9 @@ int main() {
 
     global_state = 1;
 
-    while(1) {
+    while (1) {
 
-        if(global_state == 1) {
+        if (global_state == 1) {
 
             printf("I'm working\n");
             sleep(1);

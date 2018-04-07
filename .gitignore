@@ -4,6 +4,7 @@ cmake-build-debug/
 main
 main_dir
 main_nftw
+main_fork
 main_dir_fork
 main_with_restr
 looper
