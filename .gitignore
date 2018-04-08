@@ -8,6 +8,7 @@ main_fork
 main_dir_fork
 main_with_restr
 looper
+child
 main.o
 main_dynamic
 main_shared

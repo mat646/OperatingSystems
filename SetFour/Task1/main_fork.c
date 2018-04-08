@@ -52,7 +52,7 @@ int main() {
                 notAncestor = 0;
                 pid = vfork();
                 if (pid == 0) {
-                    if(execlp("./date.sh", "./date.sh", NULL) == -1) {
+                    if(execlp("./Task1/date.sh", "./Task1/date.sh", NULL) == -1) {
                         perror("Blad przy uruchomieniu skryptu");
                         _exit(1);
                     }
