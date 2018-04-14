@@ -9,6 +9,8 @@ main_dir_fork
 main_with_restr
 looper
 child
+master
+slave
 main.o
 main_dynamic
 main_shared

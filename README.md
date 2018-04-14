@@ -28,6 +28,10 @@ Basic usage of signals.
 
 ### Set Five
 
+Extension for interpreter from set three (pipes). Example of basic pipelines.
+
+### Set Six
+
 ...
 
 ## Usage
