@@ -12,7 +12,7 @@ build-task2:
 	$(CC) ./Task2/slave.c -o ./Task2/slave
 
 run-task1:
-	./Task2/main
+	./Task1/main ./Task1/example_file
 
 run-task2:
 	./Task2/master /tmp/myfifo 5

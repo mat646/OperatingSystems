@@ -1,2 +1,3 @@
-ls -l | grep main
-pwd
+ls -l | grep m
+ls -al | grep m
+ls -al | grep m
