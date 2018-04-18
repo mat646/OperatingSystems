@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/wait.h>
+
 #define _GNU_SOURCE
 #define MAX_LEN 100
 
@@ -30,23 +31,29 @@ int main(int argc, char *argv[]) {
     }
 
     char command[MAX_LEN];
-    char *args[MAX_LEN], *cmds[MAX_LEN];
+    char *arg_arr[MAX_LEN], *cmd_arr[MAX_LEN];
     int deep = 0, num_args = 0, num_lines = 0;
 
     while (fgets(command, MAX_LEN, file)) {
         num_lines++;
-
         deep = 0;
-        while ((cmds[deep] = strtok(deep == 0 ? command : NULL, "|\n")) != NULL){
-            ++deep;
+
+        cmd_arr[deep] = strtok(command, "|\n");
+        deep++;
+        while ((cmd_arr[deep] = strtok(NULL, "|\n")) != NULL){
+            deep++;
         }
         if (!deep) continue;
 
         int i;
         for (i = 0; i < deep; i++) {
             num_args = 0;
-            while ((args[num_args] = strtok(num_args == 0 ? cmds[i] : NULL, " \t\n")) != NULL)
-                ++num_args;
+            arg_arr[num_args] = strtok( cmd_arr[i], " \t\n");
+            num_args++;
+
+            while ((arg_arr[num_args] = strtok(NULL, " \t\n")) != NULL) {
+                num_args++;
+            }
             if (!num_args) continue;
 
             if (i > 1) {
@@ -55,8 +62,8 @@ int main(int argc, char *argv[]) {
             }
             pipe(pipes[i % 2]);
 
-            pid_t cp = fork();
-            if (cp == 0) {
+            pid_t pid = fork();
+            if (pid == 0) {
                 if (i < deep - 1) {
                     close(pipes[i % 2][0]);
                     dup2(pipes[i % 2][1], 1);
@@ -65,8 +72,7 @@ int main(int argc, char *argv[]) {
                     close(pipes[(i + 1) % 2][1]);
                     dup2(pipes[(i + 1) % 2][0], 0);
                 }
-                execvp(args[0], args);
-
+                execvp(arg_arr[0], arg_arr);
             }
         }
         close(pipes[i % 2][0]);
