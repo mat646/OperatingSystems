@@ -15,5 +15,5 @@ run-task1:
 	./Task1/main ./Task1/example_file
 
 run-task2:
-	./Task2/master /tmp/myfifo 5
+	./Task2/master /tmp/myfifo 5 &
 	./Task2/slave /tmp/myfifo 5

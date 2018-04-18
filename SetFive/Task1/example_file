@@ -1,3 +1,3 @@
-ls -l | grep m
-ls -al | grep m
-ls -al | grep m
+ls -l | grep m | wc -l
+ls -al | grep a
+ls -al | grep m | wc -l

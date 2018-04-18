@@ -3,64 +3,17 @@
 //
 
 #include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 #include <string.h>
-#include <fcntl.h>
+#include <sys/wait.h>
+#define _GNU_SOURCE
+#define MAX_LEN 100
 
-int fd[2];
-int deep = 0;
-char* array[100];
+int pipes[2][2];
 
-void execute(int level) {
-    int argumentNumber = 1;
-    char *token;
-    token = strtok(array[level], " \n\t");
-    char *params[4];
-    while ((params[argumentNumber] = strtok(NULL, " \n\t")) != NULL) {
-        argumentNumber++;
-        if (argumentNumber >= 10) {
-            printf("too many arguments");
-            return;
-        }
-    };
-    params[0] = token;
-    params[argumentNumber+1] = NULL;
-
-    int argumentNumber2 = 1;
-    char *token2;
-    token2 = strtok(array[level+1], " \n\t");
-    char *params2[4];
-    while ((params2[argumentNumber2] = strtok(NULL, " \n\t")) != NULL) {
-        argumentNumber2++;
-        if (argumentNumber >= 10) {
-            printf("too many arguments");
-            return;
-        }
-    };
-    params2[0] = token2;
-    params2[argumentNumber2+1] = NULL;
-
-    int childpid;
-
-    pipe(fd);
-    if(childpid=fork()){
-        //parent
-        close(fd[1]);
-        dup2(fd[0],STDIN_FILENO);
-        execvp(params2[0],params2);
-    }else{
-        //child
-        //write
-        close(fd[0]);
-        dup2(fd[1],STDOUT_FILENO);
-        execvp(params[0], params);
-    }
-}
-
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
 
     if (argc == 1 || argv[1] == NULL) {
         printf("Parametry wywolania:\n 1. ścieżka do pliku\n");
@@ -76,26 +29,52 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char command[100];
+    char command[MAX_LEN];
+    char *args[MAX_LEN], *cmds[MAX_LEN];
+    int deep = 0, num_args = 0, num_lines = 0;
 
-    while (fgets(command, 100, file)) {
+    while (fgets(command, MAX_LEN, file)) {
+        num_lines++;
+
         deep = 0;
-        printf("\n%s\n", command);
-
-        char *single_command = strtok(command, "|");
-
-        while (single_command != NULL) {
-            array[deep] = single_command;
-            deep++;
-            single_command = strtok(NULL, "|");
+        while ((cmds[deep] = strtok(deep == 0 ? command : NULL, "|\n")) != NULL){
+            ++deep;
         }
+        if (!deep) continue;
 
-        int pid = vfork();
-        if (pid == 0) {
-            execute(0);
-        } else {
-            int status;
-            wait(&status);
+        int i;
+        for (i = 0; i < deep; i++) {
+            num_args = 0;
+            while ((args[num_args] = strtok(num_args == 0 ? cmds[i] : NULL, " \t\n")) != NULL)
+                ++num_args;
+            if (!num_args) continue;
+
+            if (i > 1) {
+                close(pipes[i % 2][0]);
+                close(pipes[i % 2][1]);
+            }
+            pipe(pipes[i % 2]);
+
+            pid_t cp = fork();
+            if (cp == 0) {
+                if (i < deep - 1) {
+                    close(pipes[i % 2][0]);
+                    dup2(pipes[i % 2][1], 1);
+                }
+                if (i != 0) {
+                    close(pipes[(i + 1) % 2][1]);
+                    dup2(pipes[(i + 1) % 2][0], 0);
+                }
+                execvp(args[0], args);
+
+            }
+        }
+        close(pipes[i % 2][0]);
+        close(pipes[i % 2][1]);
+        while (wait(NULL)) {
+            if (errno == ECHILD) {
+                break;
+            }
         }
     }
     fclose(file);
