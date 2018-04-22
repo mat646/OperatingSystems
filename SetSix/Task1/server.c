@@ -20,112 +20,98 @@
 int clients_queue[100];
 int clients_pid[100];
 int last_index = 0;
-int queue = -1;
+int main_queue = -1;
 
 void sig_int(int sig) {
-    _exit(1);
+    _exit(0);
 }
 
-void rmQueue(void){
-    if(queue > -1){
-        msgctl(queue, IPC_RMID, NULL);
+void delete_queue(void){
+    if(main_queue > -1){
+        msgctl(main_queue, IPC_RMID, NULL);
     }
 }
 
-void doLogin(msg* msg);
-void doMirror(msg* msg);
-void doCalc(msg* msg);
-void doTime(msg* msg);
-void doEnd(msg* msg);
+void login_action(msg *msg);
+void mirror_action(msg *msg);
+void calc_action(msg *msg);
+void time_action(msg *msg);
+void end_action(msg *msg);
 
 void compute(msg *msg1) {
     if(msg1 == NULL) return;
     switch (msg1->type) {
-        case 1:
-            //printf("mirror");
-            doMirror(msg1);
+        case MIRROR:
+            mirror_action(msg1);
             break;
-        case 2:
-            printf("calc");
-            //doCalc(msg1);
+        case CALC:
+            calc_action(msg1);
             break;
-        case 3:
-            printf("time");
-            //doTime(msg1);
+        case TIME:
+            time_action(msg1);
             break;
-        case 4:
-            //printf("login");
-            doLogin(msg1);
+        case LOGIN:
+            login_action(msg1);
             break;
-        case 5:
-            printf("end");
-            //doEnd(msg1);
+        case END:
+            end_action(msg1);
             break;
         default:
             break;
     }
 }
 
+char* convertTime(const time_t* mtime){
+    char* buff = malloc(sizeof(char) * 30);
+    struct tm * timeinfo;
+    timeinfo = localtime (mtime);
+    strftime(buff, 20, "%b %d %H:%M", timeinfo);
+    return buff;
+}
+
 int main() {
-    atexit(rmQueue);
+    atexit(delete_queue);
 
     signal(SIGINT, sig_int);
 
     char *home = getenv("HOME");
 
     key_t key = ftok(home, QUEUE_ID);
-
-    queue = msgget(key, IPC_CREAT | IPC_EXCL | 0666);
+    main_queue = msgget(key, IPC_CREAT | IPC_EXCL | 0666);
 
     msg msg1;
 
     while (1) {
-        //struct msqid_ds currentState;
-        //msgctl(publicID, IPC_STAT, &currentState);
-
-        if(msgrcv(queue, &msg1, MSG_SIZE, 0, 0) < 0) printf("Receiving message failed!");
+        if(msgrcv(main_queue, &msg1, MSG_SIZE, 0, 0) < 0) printf("Receiving message failed!");
         compute(&msg1);
     }
 
 }
 
-void doLogin(msg* msg){
-    key_t clientQKey;
+int get_client_queue(pid_t pid) {
+    for(int i=0; i<100; i++){
+        if(clients_pid[i] == pid) return clients_queue[i];
+    }
+    return -1;
+}
 
+void login_action(msg *msg){
     int clientQID = msgget(msg->key, 0);
 
-    printf("clientsqueue %d\n", clientQID);
-
-    //int clientPID = msg->senderPID;
-    //msg->msg_type = INIT;
-    //msg->senderPID = getpid();
-
     if(last_index > 98){
-        printf("Maximum amount of clients_queue reached!\n");
+        printf("Full clients\n");
     }else{
         clients_queue[last_index] = clientQID;
         clients_pid[last_index] = msg->pid;
-        //clientsData[clientCnt++][1] = clientQID;
-        //sprintf(msg->cont, "%d", clientCnt-1);
-
         printf("Registered %d\n", clients_pid[last_index]);
         last_index++;
     }
-
-    //msgsnd(clientQID, msg, 100, 0);
 }
 
-void doMirror(msg* msg){
-
+void mirror_action(msg *msg){
     printf("Got %d\n", msg->pid);
 
-    int clientQueueID = -1;
-    for(int i=0; i<100; i++){
-        if(clients_pid[i] == msg->pid) clientQueueID = clients_queue[i];
-    }
-    if(clientQueueID == -1) return;
-
-    printf("Got message\n");
+    int clientQueueID = get_client_queue(msg->pid);
 
     int msgLen = (int) strlen(msg->text);
     if(msg->text[msgLen-1] == '\n') msgLen--;
@@ -137,4 +123,64 @@ void doMirror(msg* msg){
     }
 
     if(msgsnd(clientQueueID, msg, MSG_SIZE, 0) == -1) printf("MIRROR response failed!");
+}
+
+void calc_action(msg *msg) {
+    printf("Got %d\n", msg->pid);
+
+    int clientQueueID = get_client_queue(msg->pid);
+
+    char *token;
+    char *first;
+    char *second;
+
+    /* get the first token */
+    token = strtok(msg->text, " ");
+    first = strtok(NULL, " ");
+    second = strtok(NULL, " ");
+
+    char *end;
+    int f = strtol(first, &end, 10);
+    int s = strtol(second, &end, 10);
+
+    if (strcmp(token,"ADD") == 0) {
+        int someInt = f + s;
+        char str[12];
+        sprintf(str, "%d", someInt);
+        strcpy(msg->text, str);
+        msgsnd(clientQueueID, msg, MSG_SIZE, 0);
+    } else if (strcmp(token,"SUB") == 0) {
+        int someInt = f - s;
+        char str[12];
+        sprintf(str, "%d", someInt);
+        strcpy(msg->text, str);
+        msgsnd(clientQueueID, msg, MSG_SIZE, 0);
+    } else if (strcmp(token,"MUL") == 0) {
+        int someInt = f * s;
+        char str[12];
+        sprintf(str, "%d", someInt);
+        strcpy(msg->text, str);
+        msgsnd(clientQueueID, msg, MSG_SIZE, 0);
+    }
+}
+
+void time_action(msg *msg) {
+    printf("Got %d\n", msg->pid);
+
+    time_t timer;
+    time(&timer);
+    char* timeStr = convertTime(&timer);
+
+    sprintf(msg->text, "%s", timeStr);
+    free(timeStr);
+
+    int clientQueueID = get_client_queue(msg->pid);
+
+    msgsnd(clientQueueID, msg, MSG_SIZE, 0);
+}
+
+void end_action(msg *msg) {
+    struct msqid_ds currentState;
+    msgctl(main_queue, IPC_STAT, &currentState);
+    _exit(0);
 }
