@@ -59,7 +59,7 @@ int main() {
     while (1) {
         printf("Press Any Key to Continue\n");
         char action;
-        int wrong_char = 0;
+        //int wrong_char = 0;
 
         scanf(" %c", &action);
 

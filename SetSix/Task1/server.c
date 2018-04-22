@@ -82,7 +82,7 @@ int main() {
     msg msg1;
 
     while (1) {
-        if(msgrcv(main_queue, &msg1, MSG_SIZE, 0, 0) < 0) printf("Receiving message failed!");
+        if(msgrcv(main_queue, &msg1, MSG_SIZE, 0, 0) < 0) printf("Receiving message failed! Try 'ipcrm --all=msg'");
         compute(&msg1);
     }
 
