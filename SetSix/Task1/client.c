@@ -29,7 +29,7 @@ void sigInt(int sig){
 void rmQueue(void){
     if(privateID > -1){
         if(msgctl(privateID, IPC_RMID, NULL) == -1){
-            printf("There was some error deleting clients's queue!\n");
+            printf("There was some error deleting clients_queue's queue!\n");
         }
         else printf("Client's queue deleted successfully!\n");
     }
@@ -42,7 +42,7 @@ int main() {
 
     char *home = getenv("HOME");
 
-    key_t key = ftok(home, PROJECT_ID);
+    key_t key = ftok(home, QUEUE_ID);
 
     int publicQueue = msgget(key, 0);
     if(publicQueue == -1) printf("Opening queue failed!");
@@ -53,21 +53,22 @@ int main() {
 
 
     //register client
-
     msg msg;
-    msg.myType = 1;
+    msg.type = 4;
     msg.pid = getpid();
+    msg.key = privateKey;
     if(msgsnd(publicQueue, &msg, MSG_SIZE, 0) == -1) printf("error\n");
-    //msgrcv(privateQueue, &msg, MSG_SIZE, 0, 0);
-
 
 
     while (1) {
-        msg.pid = getpid();
-        msg.myType = 10;
+        printf("Press Any Key to Continue\n");
+        getchar();
+
+        msg.type = 1;
 
         msgsnd(publicQueue, &msg, MSG_SIZE, 0);
-        //msgrcv(publicQueue, &msg, MSG_SIZE, 0, 0);
+        //msgrcv(privateQueue, &msg, MSG_SIZE, 0, 0);
+        ///msgrcv(publicQueue, &msg, MSG_SIZE, 0, 0);
         printf("%s", msg.text);
 
 
