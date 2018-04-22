@@ -32,6 +32,10 @@ Extension for interpreter from set three (pipes). Example of basic pipelines.
 
 ### Set Six
 
+IPC - queues usage example.
+
+### Set Seven
+
 ...
 
 ## Usage

@@ -11,6 +11,8 @@ looper
 child
 master
 slave
+client
+server
 main.o
 main_dynamic
 main_shared
