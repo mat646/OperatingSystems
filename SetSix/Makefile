@@ -1,6 +1,7 @@
 CC=gcc -Wall
 
 build-all:
+	ipcrm --all=msg
 	make build-task1
 	make build-task2
 

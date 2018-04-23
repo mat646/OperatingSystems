@@ -62,26 +62,15 @@ void compute(msg *msg1) {
     }
 }
 
-char* convertTime(const time_t* mtime){
-    char* buff = malloc(sizeof(char) * 30);
-    struct tm * timeinfo;
-    timeinfo = localtime (mtime);
-    strftime(buff, 20, "%b %d %H:%M", timeinfo);
-    return buff;
-}
-
 int main() {
     atexit(delete_queue);
 
     signal(SIGINT, sig_int);
 
-    char *home = getenv("HOME");
-
     struct mq_attr posixAttr;
     posixAttr.mq_maxmsg = 9;
     posixAttr.mq_msgsize = MSG_SIZE;
 
-    key_t key = ftok(home, QUEUE_ID);
     main_queue = mq_open("/server", O_RDONLY | O_CREAT | O_EXCL, 0666, &posixAttr);
 
     msg msg1;
@@ -127,7 +116,7 @@ void mirror_action(msg *msg){
         msg->text[msgLen - i - 1] = buff;
     }
 
-    if(mq_send(clientQueueID, (char*) msg, MSG_SIZE, 1) == -1) printf("MIRROR response failed!");
+    mq_send(clientQueueID, (char*) msg, MSG_SIZE, 1);
 }
 
 void calc_action(msg *msg) {
@@ -169,12 +158,20 @@ void calc_action(msg *msg) {
     }
 }
 
+char* convertTime(const time_t* mtime){
+    char* buff = malloc(sizeof(char) * 30);
+    struct tm * timeinfo;
+    timeinfo = localtime (mtime);
+    strftime(buff, 20, "%b %d %H:%M", timeinfo);
+    return buff;
+}
+
 void time_action(msg *msg) {
     printf("Got %d\n", msg->pid);
 
-    time_t timer;
-    time(&timer);
-    char* timeStr = convertTime(&timer);
+    time_t timestamp;
+    time(&timestamp);
+    char* timeStr = convertTime(&timestamp);
 
     sprintf(msg->text, "%s", timeStr);
     free(timeStr);
@@ -185,7 +182,6 @@ void time_action(msg *msg) {
 }
 
 void end_action(msg *msg) {
-    struct msqid_ds currentState;
     mq_close(main_queue);
     _exit(0);
 }

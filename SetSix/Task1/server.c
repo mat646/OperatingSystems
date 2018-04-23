@@ -37,6 +37,26 @@ void mirror_action(msg *msg);
 void calc_action(msg *msg);
 void time_action(msg *msg);
 void end_action(msg *msg);
+void compute(msg *msg1);
+
+int main() {
+    atexit(delete_queue);
+
+    signal(SIGINT, sig_int);
+
+    char *home = getenv("HOME");
+
+    key_t key = ftok(home, QUEUE_ID);
+    main_queue = msgget(key, IPC_CREAT | IPC_EXCL | 0666);
+
+    msg msg1;
+
+    while (1) {
+        if(msgrcv(main_queue, &msg1, MSG_SIZE, 0, 0) < 0) printf("Receiving message failed! Try 'ipcrm --all=msg'");
+        compute(&msg1);
+    }
+
+}
 
 void compute(msg *msg1) {
     if(msg1 == NULL) return;
@@ -61,33 +81,6 @@ void compute(msg *msg1) {
     }
 }
 
-char* convertTime(const time_t* mtime){
-    char* buff = malloc(sizeof(char) * 30);
-    struct tm * timeinfo;
-    timeinfo = localtime (mtime);
-    strftime(buff, 20, "%b %d %H:%M", timeinfo);
-    return buff;
-}
-
-int main() {
-    atexit(delete_queue);
-
-    signal(SIGINT, sig_int);
-
-    char *home = getenv("HOME");
-
-    key_t key = ftok(home, QUEUE_ID);
-    main_queue = msgget(key, IPC_CREAT | IPC_EXCL | 0666);
-
-    msg msg1;
-
-    while (1) {
-        if(msgrcv(main_queue, &msg1, MSG_SIZE, 0, 0) < 0) printf("Receiving message failed! Try 'ipcrm --all=msg'");
-        compute(&msg1);
-    }
-
-}
-
 int get_client_queue(pid_t pid) {
     for(int i=0; i<100; i++){
         if(clients_pid[i] == pid) return clients_queue[i];
@@ -99,7 +92,7 @@ void login_action(msg *msg){
     int clientQID = msgget(msg->key, 0);
 
     if(last_index > 98){
-        printf("Full clients\n");
+        printf("Full clients list.\n");
     }else{
         clients_queue[last_index] = clientQID;
         clients_pid[last_index] = msg->pid;
@@ -109,7 +102,7 @@ void login_action(msg *msg){
 }
 
 void mirror_action(msg *msg){
-    printf("Got %d\n", msg->pid);
+    printf("Got msg from PID: %d\n", msg->pid);
 
     int clientQueueID = get_client_queue(msg->pid);
 
@@ -122,11 +115,11 @@ void mirror_action(msg *msg){
         msg->text[msgLen - i - 1] = buff;
     }
 
-    if(msgsnd(clientQueueID, msg, MSG_SIZE, 0) == -1) printf("MIRROR response failed!");
+    msgsnd(clientQueueID, msg, MSG_SIZE, 0);
 }
 
 void calc_action(msg *msg) {
-    printf("Got %d\n", msg->pid);
+    printf("Got msg from PID: %d\n", msg->pid);
 
     int clientQueueID = get_client_queue(msg->pid);
 
@@ -164,12 +157,20 @@ void calc_action(msg *msg) {
     }
 }
 
-void time_action(msg *msg) {
-    printf("Got %d\n", msg->pid);
+char* convertTime(const time_t* mtime){
+    char* buff = malloc(sizeof(char) * 30);
+    struct tm * timeinfo;
+    timeinfo = localtime (mtime);
+    strftime(buff, 20, "%b %d %H:%M", timeinfo);
+    return buff;
+}
 
-    time_t timer;
-    time(&timer);
-    char* timeStr = convertTime(&timer);
+void time_action(msg *msg) {
+    printf("Got msg from PID: %d\n", msg->pid);
+
+    time_t timestamp;
+    time(&timestamp);
+    char* timeStr = convertTime(&timestamp);
 
     sprintf(msg->text, "%s", timeStr);
     free(timeStr);

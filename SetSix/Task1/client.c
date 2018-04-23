@@ -25,10 +25,8 @@ void sig_int(int sig){
 
 void delete_queue(void){
     if(privateQueue > -1){
-        if(msgctl(privateQueue, IPC_RMID, NULL) == -1){
-            printf("There was some error deleting clients_queue's main_queue!\n");
-        }
-        else printf("Client's main_queue deleted successfully!\n");
+        msgctl(privateQueue, IPC_RMID, NULL);
+        printf("Client's main_queue deleted successfully!\n");
     }
 }
 
@@ -52,14 +50,13 @@ int main() {
     msg.pid = getpid();
     msg.key = privateKey;
     if(msgsnd(publicQueue, &msg, MSG_SIZE, 0) == -1) {
-        printf("Unable to register.\n");
+        printf("Unable to register client.\n");
         _exit(1);
     }
 
     while (1) {
-        printf("Press Any Key to Continue\n");
+        printf("Press key (m - mirror, + - add, - - del, * - mul, t - time, e - end)\n");
         char action;
-        //int wrong_char = 0;
 
         scanf(" %c", &action);
 
@@ -87,16 +84,17 @@ int main() {
                 msg.type = END;
                 break;
             default:
-                printf("Wrong key: m - mirror, + - add, - - del, * - mul, t - time, e - end\n");
                 break;
+        }
+
+        if (action == 'e') {
+            msgsnd(publicQueue, &msg, MSG_SIZE, 0);
+            _exit(0);
         }
 
         msgsnd(publicQueue, &msg, MSG_SIZE, 0);
         msgrcv(privateQueue, &msg, MSG_SIZE, 0, 0);
-        printf("%s", msg.text);
-        if (action == 'e') {
-            _exit(0);
-        }
+        printf("%s\n", msg.text);
     }
 
 }

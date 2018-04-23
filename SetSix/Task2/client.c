@@ -26,10 +26,8 @@ void sig_int(int sig){
 
 void delete_queue(void){
     if(privateQueue > -1){
-        if(msgctl(privateQueue, IPC_RMID, NULL) == -1){
-            printf("There was some error deleting clients_queue's main_queue!\n");
-        }
-        else printf("Client's main_queue deleted successfully!\n");
+        mq_close(privateQueue);
+        printf("Queue deleted!\n");
     }
 }
 
@@ -60,9 +58,8 @@ int main() {
     }
 
     while (1) {
-        printf("Press Any Key to Continue\n");
+        printf("Press key (m - mirror, + - add, - - del, * - mul, t - time, e - end)\n");
         char action;
-        //int wrong_char = 0;
 
         scanf(" %c", &action);
 
@@ -90,8 +87,12 @@ int main() {
                 msg.type = END;
                 break;
             default:
-                printf("Wrong key: m - mirror, + - add, - - del, * - mul, t - time, e - end\n");
                 break;
+        }
+
+        if (action == 'e') {
+            mq_send(publicQueue, (char*) &msg, MSG_SIZE, 1);
+            _exit(0);
         }
 
         mq_send(publicQueue, (char*) &msg, MSG_SIZE, 1);
