@@ -94,15 +94,16 @@ int main(int argc, char **argv) {
                     printf("BARBER: Waking up\n");
                     last_state = 'w';
                     printf("BARBER: Starting work\n");
-
                 } else if(data->barber_state == 'w' && last_state == 'w') {
                     printf("BARBER: Finished work\n");
+                    data->on_chair = -1;
                     data->barber_state = 's';
                 } else if(data->barber_state == 's'  && last_state == 'w' && data->queue_start == data->queue_end) {
                     last_state = 's';
                     printf("BARBER: Going to sleep\n");
                 } else if(data->barber_state == 's'  && last_state == 'w') {
-                    printf("BARBER: Inviting%d\n", data->queue[data->queue_end+1]);
+                    printf("BARBER: Inviting %d\n", data->queue[data->queue_end+1]);
+                    data->on_chair = data->queue[data->queue_end+1];
                     data->queue[data->queue_end+1] = -1;
                     data->queue_end++;
                     data->barber_state = 'w';

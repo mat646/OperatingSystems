@@ -69,16 +69,6 @@ int main(int argc, char **argv) {
 
         if(sem_val > 0) {
 
-//            struct sembuf *sops = (struct sembuf *) malloc(sizeof(struct sembuf));
-//
-//            sops[0].sem_num = 0; /* We only use one track */
-//            sops[0].sem_op = (short) (sops[0].sem_op - 1); /* wait for semaphore flag to become zero */
-//            sops[0].sem_flg = SEM_UNDO; /* take off semaphore asynchronous  */
-//
-//            semop(sem_id, sops, 1);
-//
-//            printf("%c state\n", data->barber_state);
-
             int pid = vfork();
             if(pid == 0) {
                 struct sembuf *sops = (struct sembuf *) malloc(sizeof(struct sembuf));
@@ -92,23 +82,26 @@ int main(int argc, char **argv) {
                 if(is_in_queue == 0) {
                     if (data->barber_state == 's' && data->queue_start == data->queue_end) {
                         data->barber_state = 'w';
-                        printf("PID %d: Waking up barber\n", PID);
-                        printf("PID %d: Sitting on chair\n", PID);
-                        printf("PID %d: Finished, leaving\n", PID);
+                        printf("CLIENT %d: Waking up barber\n", PID);
+                        printf("CLIENT %d: Sitting on chair\n", PID);
+                        data->on_chair = PID;
+                    } else if (data->barber_state == 'w' && data->on_chair == PID) {
+                        printf("CLIENT %d: Finished, leaving\n", PID);
                         visits++;
                     } else if(data->queue_end - data->queue_start < data->queue_len) {
-                        data->queue[++data->queue_start] = pid;
+                        data->queue[++data->queue_start] = PID;
                         is_in_queue = data->queue_start;
-                        printf("PID %d: Waiting in queue\n", PID);
-
+                        printf("CLIENT %d: Waiting in queue\n", PID);
                     } else {
-                        printf("PID %d: Queue full, leaving\n", PID);
+                        printf("CLIENT %d: Queue full, leaving\n", PID);
                     }
                 } else {
                     if (data->queue[is_in_queue] == -1) {
-                        printf("PID %d: Sitting on chair\n", PID);
+                        printf("CLIENT %d: Sitting on chair\n", PID);
                         is_in_queue = 0;
+                        data->on_chair = PID;
                         visits++;
+                        printf("CLIENT %d: Finished, leaving\n", PID);
                     }
                 }
 
