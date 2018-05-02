@@ -36,6 +36,10 @@ IPC - queues usage example.
 
 ### Set Seven
 
+IPC - Shared memories and semaphores (Sleeping barber problem)
+
+### Set Eight
+
 ...
 
 ## Usage

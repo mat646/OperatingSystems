@@ -9,6 +9,7 @@ main_dir_fork
 main_with_restr
 looper
 child
+barber
 master
 slave
 client

@@ -3,14 +3,16 @@
 //
 
 #define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <string.h>
+#include "contract.h"
 
 key_t key;
 
@@ -26,68 +28,23 @@ int main(int argc, char **argv) {
     sscanf(argv[2], "%d", &S);
 
 
-    int barberPID = 0;//fork();
-    if (barberPID == 0) {
+    pid_t pid1 = fork();
+    if (pid1 == 0) {
+        execl("./Task1/barber", "./Task1/barber", "5", NULL);
+    } else {
 
-        //create barber and semaphore
+    }
 
-        char *home = getenv("HOME");
-        key = ftok(home, 2200);
+    sleep(3);
 
-        int memid;
-        if ((memid = shmget(key, 1024, IPC_CREAT | 0666)) == -1) {
-            perror("shmget b");
-            exit(1);
-        }
+    for (int i = 0; i < N; i++) {
+        pid_t pid = fork();
+        if (pid == 0) {
+            execl("./Task1/client", "./Task1/client", "1", NULL);
+        } else {
 
-        void* data = shmat(memid, NULL, 0);
-        if (data == (char *)(-1)) {
-            perror("shmat b");
-            exit(1);
-        }
-
-        strncpy(data, "dzialaaaa", 1024);
-
-        //while () {
-
-        //}
-
-    //} else {
-
-        sleep(3);
-
-        for (int i = 0; i < N; ++i) {
-            int pid = fork();
-
-            if (pid == 0) {
-                //client
-                int visits = 0;
-
-                int memid;
-                if ((memid = shmget(key, 1024, 0666)) == -1) {
-                    perror("shmget c");
-                    exit(1);
-                }
-
-                void* data = shmat(memid, NULL, 0);
-                if (data == (char *)(-1)) {
-                    perror("shmat");
-                    exit(1);
-                }
-
-                char xd[1024];
-
-                strncpy(xd, data, 1024);
-
-                printf("%s a", xd);
-
-                // while (visits < S)
-                //semaphore
-
-                exit(0);
-
-            }
         }
     }
+
 
 }
