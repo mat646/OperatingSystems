@@ -3,6 +3,7 @@
 //
 
 #define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,7 +12,8 @@
 #include "contract.h"
 
 int visits = 0;
-int pid;
+int PID;
+int is_in_queue = 0;
 struct barber_shop* data;
 
 void init_shm() {
@@ -21,15 +23,11 @@ void init_shm() {
 
     int memid;
     if ((memid = shmget(key, sizeof(struct barber_shop), 0666)) == -1) {
-        perror("shmget c");
+        perror("shmget");
         exit(1);
     }
 
     data = shmat(memid, NULL, 0);
-    if (data == (char *)(-1)) {
-        perror("shmat");
-        exit(1);
-    }
 
 }
 
@@ -40,12 +38,9 @@ int init_sem() {
 
     int semid = semget(key, 1, 0666);
 
-    struct sembuf *sops = (struct sembuf *) malloc(sizeof(struct sembuf));
-
     return semid;
 
 }
-
 
 int main(int argc, char **argv) {
 
@@ -57,7 +52,7 @@ int main(int argc, char **argv) {
     int S;
     sscanf(argv[1], "%d", &S);
 
-    pid = getpid();
+    PID = getpid();
 
     init_shm();
 
@@ -74,20 +69,51 @@ int main(int argc, char **argv) {
 
         if(sem_val > 0) {
 
-            struct sembuf *sops = (struct sembuf *) malloc(sizeof(struct sembuf));
+//            struct sembuf *sops = (struct sembuf *) malloc(sizeof(struct sembuf));
+//
+//            sops[0].sem_num = 0; /* We only use one track */
+//            sops[0].sem_op = (short) (sops[0].sem_op - 1); /* wait for semaphore flag to become zero */
+//            sops[0].sem_flg = SEM_UNDO; /* take off semaphore asynchronous  */
+//
+//            semop(sem_id, sops, 1);
+//
+//            printf("%c state\n", data->barber_state);
 
-            sops[0].sem_num = 0; /* We only use one track */
-            sops[0].sem_op = (short) (sops[0].sem_op - 1); /* wait for semaphore flag to become zero */
-            sops[0].sem_flg = SEM_UNDO; /* take off semaphore asynchronous  */
+            int pid = vfork();
+            if(pid == 0) {
+                struct sembuf *sops = (struct sembuf *) malloc(sizeof(struct sembuf));
 
-            int state = semop(sem_id, sops, 1);
+                sops[0].sem_num = 0;
+                sops[0].sem_op = (short) (sops[0].sem_op - 1);
+                sops[0].sem_flg = SEM_UNDO;
 
-            printf("%c state\n", data->barber_state);
+                semop(sem_id, sops, 1);
 
-            sleep(1);
+                if(is_in_queue == 0) {
+                    if (data->barber_state == 's' && data->queue_start == data->queue_end) {
+                        data->barber_state = 'w';
+                        printf("PID %d: Waking up barber\n", PID);
+                        printf("PID %d: Sitting on chair\n", PID);
+                        printf("PID %d: Finished, leaving\n", PID);
+                        visits++;
+                    } else if(data->queue_end - data->queue_start < data->queue_len) {
+                        data->queue[++data->queue_start] = pid;
+                        is_in_queue = data->queue_start;
+                        printf("PID %d: Waiting in queue\n", PID);
 
-            exit(0);
+                    } else {
+                        printf("PID %d: Queue full, leaving\n", PID);
+                    }
+                } else {
+                    if (data->queue[is_in_queue] == -1) {
+                        printf("PID %d: Sitting on chair\n", PID);
+                        is_in_queue = 0;
+                        visits++;
+                    }
+                }
 
+                exit(0);
+            }
         }
 
         sleep(1);
@@ -95,5 +121,4 @@ int main(int argc, char **argv) {
     }
 
     exit(0);
-
 }

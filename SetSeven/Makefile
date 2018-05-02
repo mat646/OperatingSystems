@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all clean
 
 CC=gcc -Wall
 
@@ -15,3 +15,6 @@ Task1/client: Task1/client.c Task1/contract.h
 
 Task1/barber: Task1/barber.c Task1/contract.h
 	$(CC) $^ -o $@
+
+clean:
+	rm Task1/barber Task1/client Task1/main
