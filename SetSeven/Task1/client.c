@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
                     } else if (data->barber_state == 'w' && data->on_chair == PID) {
                         printf("CLIENT %d: Finished, leaving\n", PID);
                         visits++;
-                    } else if(data->queue_end - data->queue_start < data->queue_len) {
+                    } else if(data->queue_start - data->queue_end < data->queue_len) {
                         data->queue[++data->queue_start] = PID;
                         is_in_queue = data->queue_start;
                         printf("CLIENT %d: Waiting in queue\n", PID);
