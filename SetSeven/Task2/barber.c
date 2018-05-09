@@ -13,10 +13,12 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <signal.h>
 #include "contract.h"
 
 struct barber_shop* data;
 char last_state = 's';
+sem_t* semid;
 
 void init_shm(int N) {
 
@@ -48,6 +50,11 @@ sem_t* init_sem() {
     return semid;
 }
 
+void close_barber(int signo) {
+    printf("Closing barber shop.\n");
+    sem_close(semid);
+}
+
 int main(int argc, char **argv) {
 
     if (argc == 1 || argv[1] == NULL) {
@@ -55,12 +62,16 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    signal(SIGINT, close_barber);
+    signal(SIGKILL, close_barber);
+
     int N;
     sscanf(argv[1], "%d", &N);
 
     init_shm(N);
 
     sem_t* sem_id = init_sem();
+    semid = sem_id;
 
     int *sem_val = NULL;
 

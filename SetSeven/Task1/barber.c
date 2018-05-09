@@ -9,10 +9,12 @@
 #include <unistd.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <signal.h>
 #include "contract.h"
 
 struct barber_shop* data;
 char last_state = 's';
+int semid;
 
 void init_shm(int N) {
 
@@ -53,6 +55,11 @@ int init_sem() {
 
 }
 
+void close_barber(int signo) {
+    printf("Closing barber shop.\n");
+    semctl(semid, 0, IPC_RMID);
+}
+
 int main(int argc, char **argv) {
 
     if (argc == 1 || argv[1] == NULL) {
@@ -60,12 +67,16 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    signal(SIGINT, close_barber);
+    signal(SIGKILL, close_barber);
+
     int N;
     sscanf(argv[1], "%d", &N);
 
     init_shm(N);
 
     int sem_id = init_sem();
+    semid = sem_id;
 
     int sem_val;
 
