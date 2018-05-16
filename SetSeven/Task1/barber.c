@@ -55,9 +55,10 @@ int init_sem() {
 
 }
 
-void close_barber(int signo) {
+void close_barber(int signum) {
     printf("Closing barber shop.\n");
     semctl(semid, 0, IPC_RMID);
+    exit(0);
 }
 
 int main(int argc, char **argv) {
@@ -67,8 +68,10 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    signal(SIGINT, close_barber);
-    signal(SIGKILL, close_barber);
+    if (signal(SIGINT, close_barber) == SIG_ERR) {
+        printf("Cannot proceed SIGINT\n");
+        exit(1);
+    }
 
     int N;
     sscanf(argv[1], "%d", &N);
