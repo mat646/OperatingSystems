@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <time.h>
 #include "contract.h"
 
 int visits = 0;
@@ -40,6 +41,14 @@ int init_sem() {
 
     return semid;
 
+}
+
+char* my_clock() {
+    time_t rawtime;
+    struct tm * timeinfo;
+    time(&rawtime);
+    timeinfo = localtime(&rawtime );
+    return asctime(timeinfo);
 }
 
 int main(int argc, char **argv) {
@@ -82,26 +91,26 @@ int main(int argc, char **argv) {
                 if(is_in_queue == 0) {
                     if (data->barber_state == 's' && data->queue_start == data->queue_end) {
                         data->barber_state = 'w';
-                        printf("CLIENT %d: Waking up barber\n", PID);
-                        printf("CLIENT %d: Sitting on chair\n", PID);
+                        printf("%s CLIENT %d: Waking up barber\n", my_clock(), PID);
+                        printf("%s CLIENT %d: Sitting on chair\n", my_clock(), PID);
                         data->on_chair = PID;
                     } else if (data->barber_state == 'w' && data->on_chair == PID) {
-                        printf("CLIENT %d: Finished, leaving\n", PID);
+                        printf("%s CLIENT %d: Finished, leaving\n", my_clock(), PID);
                         visits++;
                     } else if(data->queue_start - data->queue_end < data->queue_len) {
                         data->queue[++data->queue_start] = PID;
                         is_in_queue = data->queue_start;
-                        printf("CLIENT %d: Waiting in queue\n", PID);
+                        printf("%s CLIENT %d: Waiting in queue\n", my_clock(), PID);
                     } else {
-                        printf("CLIENT %d: Queue full, leaving\n", PID);
+                        printf("%s CLIENT %d: Queue full, leaving\n", my_clock(), PID);
                     }
                 } else {
                     if (data->queue[is_in_queue] == -1) {
-                        printf("CLIENT %d: Sitting on chair\n", PID);
+                        printf("%s CLIENT %d: Sitting on chair\n", my_clock(), PID);
                         is_in_queue = 0;
                         data->on_chair = PID;
                         visits++;
-                        printf("CLIENT %d: Finished, leaving\n", PID);
+                        printf("%s CLIENT %d: Finished, leaving\n", my_clock(), PID);
                     }
                 }
 

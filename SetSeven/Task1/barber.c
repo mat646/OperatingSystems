@@ -10,6 +10,8 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 #include <signal.h>
+#include <sys/time.h>
+#include <time.h>
 #include "contract.h"
 
 struct barber_shop* data;
@@ -61,6 +63,14 @@ void close_barber(int signum) {
     exit(0);
 }
 
+char* my_clock() {
+    time_t rawtime;
+    struct tm * timeinfo;
+    time(&rawtime);
+    timeinfo = localtime(&rawtime );
+    return asctime(timeinfo);
+}
+
 int main(int argc, char **argv) {
 
     if (argc == 1 || argv[1] == NULL) {
@@ -105,23 +115,23 @@ int main(int argc, char **argv) {
                 if (data->queue_start == data->queue_end && data->barber_state == 's' && last_state == 's') {
 
                 } else if(data->barber_state == 'w' && last_state == 's') {
-                    printf("BARBER: Waking up\n");
+                    printf("%s BARBER: Waking up\n", my_clock());
                     last_state = 'w';
-                    printf("BARBER: Starting work\n");
+                    printf("%s BARBER: Starting work\n", my_clock());
                 } else if(data->barber_state == 'w' && last_state == 'w') {
-                    printf("BARBER: Finished work\n");
+                    printf("%s BARBER: Finished work\n", my_clock());
                     data->on_chair = -1;
                     data->barber_state = 's';
                 } else if(data->barber_state == 's'  && last_state == 'w' && data->queue_start == data->queue_end) {
                     last_state = 's';
-                    printf("BARBER: Going to sleep\n");
+                    printf("%s BARBER: Going to sleep\n", my_clock());
                 } else if(data->barber_state == 's'  && last_state == 'w') {
-                    printf("BARBER: Inviting %d\n", data->queue[data->queue_end+1]);
+                    printf("%s BARBER: Inviting %d\n", my_clock(), data->queue[data->queue_end+1]);
                     data->on_chair = data->queue[data->queue_end+1];
                     data->queue[data->queue_end+1] = -1;
                     data->queue_end++;
                     data->barber_state = 'w';
-                    printf("BARBER: Starting work\n");
+                    printf("%s BARBER: Starting work\n", my_clock());
                 }
 
                 exit(0);
