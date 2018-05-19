@@ -24,3 +24,4 @@ table_manager_static.a
 table_manager_static.o
 table_manager_static.so
 time_full.o
+out

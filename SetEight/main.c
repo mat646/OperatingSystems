@@ -20,7 +20,7 @@ struct arg_struct {
 int c, height, width, max;
 int input_image[MAX_SIZE][MAX_SIZE];
 int output_image[MAX_SIZE][MAX_SIZE];
-int filter[MAX_SIZE][MAX_SIZE];
+double filter[MAX_SIZE][MAX_SIZE];
 
 void *compute_img(struct arg_struct *args);
 
@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
         printf("Parametry wywolania:\n 1. liczba watkow\n 2. obraz wejsciowy\n 3. definicja filtru\n 4. plik wynikowy\n");
         return 0;
     }
-
 
     int N;
     sscanf(argv[1], "%d", &N);
@@ -42,35 +41,62 @@ int main(int argc, char **argv) {
 
     FILE *file = fopen(input_img_path, "r");
 
-    char napis[100];
+    char type[2];
 
-    if (file) { //TODO reading from file
-        for (int i = 0; i < 100; ++i) {
-            fread(napis, sizeof(char), 100, file);
+    if (file) {
+
+        fscanf(file, "%s\n", type);
+        fscanf(file, "%d", &width);
+        fscanf(file, "%d", &height);
+        fscanf(file, "%d", &max);
+
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; ++j) {
+                fscanf(file, "%d", &input_image[i][j]);
+            }
         }
 
         fclose(file);
+    } else {
+        printf("can't open file\n");
+        exit(1);
     }
 
+    file = fopen(filter_path, "r");
 
-    //----------------------
+    if (file) {
+
+        fscanf(file, "%d", &c);
+
+        for (int i = 0; i < c; i++)
+        {
+            for (int j = 0; j < c; ++j) {
+                fscanf(file, "%lf", &filter[i][j]);
+            }
+        }
+
+        fclose(file);
+    } else {
+        printf("can't open file\n");
+        exit(1);
+    }
+
+    //TODO time measurement
 
     pthread_t inc_x_thread;
-    //int x = 0;
 
     for (int i = 0; i < N; ++i) {
 
-        struct arg_struct args = args;
+        struct arg_struct args;
 
-        args.offset = 1;
-        args.row_amount = 2;
+        args.offset = i*(height/N);
+        args.row_amount = height/N;
 
         if (pthread_create(&inc_x_thread, NULL, (void *(*)(void *)) compute_img, &args)) {
             fprintf(stderr, "Error creating thread\n");
             return 1;
         }
-
-        //sleep(1);
 
         if (pthread_join(inc_x_thread, NULL)) {
 
@@ -79,20 +105,36 @@ int main(int argc, char **argv) {
 
         }
 
-        printf("%d\n", c);
-
     }
 
+    file = fopen(output_path, "w");
+
+    if (file) {
+
+        fprintf(file, "P2\n%d %d\n%d\n", width, height, max);
+
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; ++j) {
+                fprintf(file, "%d ", output_image[i][j]);
+            }
+            fprintf(file, "\n");
+        }
+
+        fclose(file);
+    } else {
+        printf("can't open file\n");
+        exit(1);
+    }
 
 }
 
 double compute_cell(int x, int y) {
+
     double s = 0;
 
     for (int i = 0; i < c; ++i) {
         for (int j = 0; j < c; ++j) {
-
-            MIN(2, 2);
             s += input_image[MAX(1, x - (int) ceil((double) c / 2) + i)][MAX(1, y - (int) ceil((double) c / 2) + j)] *
                  filter[i][j];
         }
@@ -105,11 +147,11 @@ void *compute_img(struct arg_struct *args) {
 
     for (int i = args->offset; i < args->offset + args->row_amount; ++i) {
         for (int j = 0; j < width; ++j) {
-            //output_image[i][j] = (int) round(compute_cell(i, j));
+            output_image[i][j] = (int) round(compute_cell(i, j));
         }
     }
 
-    printf("%ld finished computing\n", (unsigned long int) pthread_self());
+    printf("%ld finished computing %d rows\n", (unsigned long int) pthread_self(), args->offset);
 
     return 0;
 }

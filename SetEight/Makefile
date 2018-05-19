@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean run
 
 CC=gcc -Wall
 
@@ -10,3 +10,6 @@ main: main.c
 
 clean:
 	rm main
+
+run:
+	./main 2 img.pgm filter out
