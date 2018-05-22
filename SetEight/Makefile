@@ -12,4 +12,4 @@ clean:
 	rm main
 
 run:
-	./main 2 img.pgm filter out
+	./main 2 assets/cat.pgm assets/filter assets/out.pgm

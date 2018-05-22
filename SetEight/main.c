@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <zconf.h>
 #include <math.h>
 #include <sys/param.h>
 
@@ -50,8 +49,7 @@ int main(int argc, char **argv) {
         fscanf(file, "%d", &height);
         fscanf(file, "%d", &max);
 
-        for (int i = 0; i < height; i++)
-        {
+        for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; ++j) {
                 fscanf(file, "%d", &input_image[i][j]);
             }
@@ -59,7 +57,7 @@ int main(int argc, char **argv) {
 
         fclose(file);
     } else {
-        printf("can't open file\n");
+        printf("can't open file image\n");
         exit(1);
     }
 
@@ -69,8 +67,7 @@ int main(int argc, char **argv) {
 
         fscanf(file, "%d", &c);
 
-        for (int i = 0; i < c; i++)
-        {
+        for (int i = 0; i < c; i++) {
             for (int j = 0; j < c; ++j) {
                 fscanf(file, "%lf", &filter[i][j]);
             }
@@ -78,7 +75,7 @@ int main(int argc, char **argv) {
 
         fclose(file);
     } else {
-        printf("can't open file\n");
+        printf("can't open file filter\n");
         exit(1);
     }
 
@@ -90,8 +87,8 @@ int main(int argc, char **argv) {
 
         struct arg_struct args;
 
-        args.offset = i*(height/N);
-        args.row_amount = height/N;
+        args.offset = i * (height / N);
+        args.row_amount = height / N;
 
         if (pthread_create(&inc_x_thread, NULL, (void *(*)(void *)) compute_img, &args)) {
             fprintf(stderr, "Error creating thread\n");
@@ -107,14 +104,15 @@ int main(int argc, char **argv) {
 
     }
 
+    sscanf(argv[4], "%s", output_path);
+
     file = fopen(output_path, "w");
 
     if (file) {
 
         fprintf(file, "P2\n%d %d\n%d\n", width, height, max);
 
-        for (int i = 0; i < height; i++)
-        {
+        for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; ++j) {
                 fprintf(file, "%d ", output_image[i][j]);
             }
@@ -123,7 +121,7 @@ int main(int argc, char **argv) {
 
         fclose(file);
     } else {
-        printf("can't open file\n");
+        printf("can't open file out\n");
         exit(1);
     }
 
@@ -135,7 +133,8 @@ double compute_cell(int x, int y) {
 
     for (int i = 0; i < c; ++i) {
         for (int j = 0; j < c; ++j) {
-            s += input_image[MAX(1, x - (int) ceil((double) c / 2) + i)][MAX(1, y - (int) ceil((double) c / 2) + j)] *
+            s += (double) input_image[MAX(1, x - (int) ceil((double) c / 2.0) + i)][MAX(1, y - (int) ceil(
+                    (double) c / 2.0) + j)] *
                  filter[i][j];
         }
     }
