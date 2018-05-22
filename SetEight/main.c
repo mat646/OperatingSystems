@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <math.h>
 #include <sys/param.h>
+#include <sys/time.h>
 
 struct arg_struct {
     int offset;
@@ -79,7 +80,10 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    //TODO time measurement
+    
+    struct timeval stop, start;
+    gettimeofday(&start, NULL);
+
 
     pthread_t inc_x_thread;
 
@@ -103,6 +107,9 @@ int main(int argc, char **argv) {
         }
 
     }
+
+    gettimeofday(&stop, NULL);
+    printf("took %lu\n", (stop.tv_usec + stop.tv_sec*1000000) - (start.tv_usec + start.tv_sec*1000000));
 
     sscanf(argv[4], "%s", output_path);
 
