@@ -22,27 +22,31 @@ and searching through directories.
 Simple interpreter for bash commands. 
 Set contains process management with given resources limits.
 
-### Set Four
+### Set four
 
 Basic usage of signals. 
 
-### Set Five
+### Set five
 
 Extension for interpreter from set three (pipes). Example of basic pipelines.
 
-### Set Six
+### Set six
 
 IPC - queues usage example.
 
-### Set Seven
+### Set seven
 
 IPC - Shared memories and semaphores (Sleeping barber problem)
 
-### Set Eight
+### Set eight
 
 Threads. 
 
-### Set Nine
+### Set nine
+
+Mutex and Condition Variables.
+
+### Set ten
 
 ...
 
