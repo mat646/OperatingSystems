@@ -12,43 +12,97 @@
 #include <sys/param.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <signal.h>
+#include <semaphore.h>
 
-char* bufor[MAX_SIZE];
+char *bufor[MAX_SIZE];
 pthread_t tid[MAX_SIZE];
 int N, P, K, L;
 
-int prod_index, cons_index;
+volatile int prod_index = 0, cons_index = 0;
+sem_t array_sem;
+sem_t array_sem2;
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t lock[MAX_SIZE];
+pthread_mutex_t lock2[MAX_SIZE];
+pthread_cond_t cond[MAX_SIZE];
+pthread_cond_t cond2[MAX_SIZE];
+pthread_mutex_t prod_index_get = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t cons_index_get = PTHREAD_MUTEX_INITIALIZER;
+
+void int_handler(int signo)
+{
+    if(signo == SIGINT)
+    {
+        printf("CTRL+C\n");
+        exit(0);
+    }
+}
 
 void *producer(void *x_void_ptr) {
 
     while (1) {
-        pthread_mutex_lock(&lock);
-        /* operacje na x... */
-        printf("dawanie\n");
-        pthread_cond_broadcast(&cond);
-        pthread_mutex_unlock(&lock);
+
+        pthread_mutex_lock(&prod_index_get);
+        int index = prod_index++;
+        prod_index = prod_index % N;
+        pthread_mutex_unlock(&prod_index_get);
+
+        pthread_mutex_lock(&lock[index]);
+        if (bufor[index] != NULL)
+            pthread_cond_wait(&cond2[index], &lock[index]);
+        printf("%d dawanie przez %ld\n", index, pthread_self());
+        int len = rand() % N + 5;
+        bufor[index] = (char *) malloc(len * sizeof(char));
+        for (int j = 0; j < len; ++j) {
+            bufor[index][j] = (char) ((rand() % 24) + 97);
+        }
+
+        pthread_cond_broadcast(&cond[index]);
+        pthread_mutex_unlock(&lock[index]);
     }
 
-    return 0;
 }
 
 void *consumer(void *x_void_ptr) {
 
     while (1) {
-        pthread_mutex_lock(&lock);
-        /* operacje na x... */
-        printf("branie\n");
-        pthread_cond_wait(&cond, &lock);
-        pthread_mutex_unlock(&lock);
+
+        pthread_mutex_lock(&cons_index_get);
+        int index = cons_index++;
+        cons_index = cons_index % N;
+        pthread_mutex_unlock(&cons_index_get);
+
+        pthread_mutex_lock(&lock2[index]);
+        if (bufor[index] == NULL) {
+            printf("czekam\n");
+            pthread_cond_wait(&cond[index], &lock2[index]);
+        }
+
+        printf("%d branie przez %ld\n", index, pthread_self());
+        for (int j = 0; j < 3; ++j) {
+            printf("%c", bufor[index][j]);
+        }
+        printf("\n");
+        bufor[index] = NULL;
+
+        pthread_cond_broadcast(&cond2[index]);
+        pthread_mutex_unlock(&lock2[index]);
     }
 
-    return 0;
 }
 
 int main(int argc, char **argv) {
+
+    if (sem_init(&array_sem, 0, 1) < 0) printf("Couldnt make semaphore.\n");
+    if (sem_init(&array_sem2, 0, 1) < 0) printf("Couldnt make semaphore.\n");
+
+    for (int i = 0; i < N; ++i) {
+        pthread_mutex_init(&lock[i], NULL);
+        pthread_mutex_init(&lock2[i], NULL);
+        pthread_cond_init(&cond[i], NULL);
+        pthread_cond_init(&cond2[i], NULL);
+    }
 
     if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
         printf("Parametry wywolania:\n 1. rozmiar bufora\n 2. liczba producentow\n 3. liczba konsumentow\n");
@@ -59,21 +113,22 @@ int main(int argc, char **argv) {
     sscanf(argv[2], "%d", &P);
     sscanf(argv[3], "%d", &K);
 
-    for (int i = 0; i < P; ++i) {
-        if (pthread_create(&tid[i], NULL, producer, NULL)) {
-            fprintf(stderr, "Error creating thread\n");
-            return 1;
-        }
-    }
-
     for (int i = 0; i < K; ++i) {
-        if (pthread_create(&tid[P+i], NULL, consumer, NULL)) {
+        if (pthread_create(&tid[i], NULL, consumer, NULL)) {
             fprintf(stderr, "Error creating thread\n");
             return 1;
         }
     }
 
-    sleep(N*K);
+    for (int i = 0; i < P; ++i) {
+        if (pthread_create(&tid[K + i], NULL, producer, NULL)) {
+            fprintf(stderr, "Error creating thread\n");
+            return 1;
+        }
+    }
+
+    sleep(1);
+    //sleep(N * K);
 
     return 0;
 }
