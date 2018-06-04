@@ -15,10 +15,12 @@
 #include <signal.h>
 #include <semaphore.h>
 #include <fcntl.h>
+#include <string.h>
 
 char *bufor[MAX_SIZE];
 pthread_t tid[MAX_SIZE];
 int N, P, K, L;
+FILE *file;
 
 pthread_mutex_t prod_index_get = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t cons_index_get = PTHREAD_MUTEX_INITIALIZER;
@@ -68,13 +70,12 @@ void *producer(void *x_void_ptr) {
         prod_index = prod_index % N;
         pthread_mutex_unlock(&prod_index_get);
 
-        printf("xd\n");
         sem_wait(semid[index]);
         printf("%d dawanie przez %ld\n", index, pthread_self());
-        int len = rand() % N + 5;
+        int len = rand() % 20;
         bufor[index] = (char *) malloc(len * sizeof(char));
         for (int j = 0; j < len; ++j) {
-            bufor[index][j] = (char) ((rand() % 24) + 97);
+            fgets(bufor[index], len, file);
         }
 
         sem_post(semid2[index]);
@@ -92,10 +93,12 @@ void *consumer(void *x_void_ptr) {
         pthread_mutex_unlock(&cons_index_get);
 
         sem_wait(semid2[index]);
-        printf("xd\n");
+
         printf("%d branie przez %ld\n", index, pthread_self());
-        for (int j = 0; j < 3; ++j) {
-            printf("%c", bufor[index][j]);
+        if (strlen(bufor[index]) == L) {
+            for (int j = 0; j < strlen(bufor[index]); ++j) {
+                printf("%c", bufor[index][j]);
+            }
         }
         printf("\n");
         bufor[index] = NULL;
@@ -110,14 +113,17 @@ int main(int argc, char **argv) {
     if (sem_init(&array_sem, 0, 1) < 0) printf("Couldnt make semaphore.\n");
     if (sem_init(&array_sem2, 0, 1) < 0) printf("Couldnt make semaphore.\n");
 
-    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
-        printf("Parametry wywolania:\n 1. rozmiar bufora\n 2. liczba producentow\n 3. liczba konsumentow\n");
+    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL || argv[4] == NULL) {
+        printf("Parametry wywolania:\n 1. rozmiar bufora\n 2. liczba producentow\n 3. liczba konsumentow\n 4. poszukiwana dlugosc\n");
         return 0;
     }
 
     sscanf(argv[1], "%d", &N);
     sscanf(argv[2], "%d", &P);
     sscanf(argv[3], "%d", &K);
+    sscanf(argv[4], "%d", &L);
+
+    file = fopen("pan_tadeusz", "r");
 
     for (int j = 0; j < N; ++j) {
         char name[20];

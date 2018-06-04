@@ -16,7 +16,7 @@ clean:
 	rm main_a main_b
 
 run-a:
-	./main_a 5 2 2
+	./main_a 5 2 2 9
 
 run-b:
-	./main_b 5 2 2
+	./main_b 5 2 2 9
