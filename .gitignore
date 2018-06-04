@@ -25,3 +25,5 @@ table_manager_static.o
 table_manager_static.so
 time_full.o
 out
+main_a
+main_b

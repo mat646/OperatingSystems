@@ -3,13 +3,20 @@
 CC=gcc -Wall
 
 
-all: main
+all: main_a main_b
 
-main: main.c
+main_a: main_a.c
 	$(CC) $^ -o $@ -lpthread -lm
 
-clean:
-	rm main
+main_b: main_b.c
+	$(CC) $^ -o $@ -lrt -lpthread -lm
 
-run:
-	./main 5 2 2
+clean:
+	ipcrm --all=sem
+	rm main_a main_b
+
+run-a:
+	./main_a 5 2 2
+
+run-b:
+	./main_b 5 2 2

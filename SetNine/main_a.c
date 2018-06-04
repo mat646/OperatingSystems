@@ -94,6 +94,15 @@ void *consumer(void *x_void_ptr) {
 
 int main(int argc, char **argv) {
 
+    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
+        printf("Parametry wywolania:\n 1. rozmiar bufora\n 2. liczba producentow\n 3. liczba konsumentow\n");
+        return 0;
+    }
+
+    sscanf(argv[1], "%d", &N);
+    sscanf(argv[2], "%d", &P);
+    sscanf(argv[3], "%d", &K);
+
     if (sem_init(&array_sem, 0, 1) < 0) printf("Couldnt make semaphore.\n");
     if (sem_init(&array_sem2, 0, 1) < 0) printf("Couldnt make semaphore.\n");
 
@@ -103,15 +112,6 @@ int main(int argc, char **argv) {
         pthread_cond_init(&cond[i], NULL);
         pthread_cond_init(&cond2[i], NULL);
     }
-
-    if (argc == 1 || argv[1] == NULL || argv[2] == NULL || argv[3] == NULL) {
-        printf("Parametry wywolania:\n 1. rozmiar bufora\n 2. liczba producentow\n 3. liczba konsumentow\n");
-        return 0;
-    }
-
-    sscanf(argv[1], "%d", &N);
-    sscanf(argv[2], "%d", &P);
-    sscanf(argv[3], "%d", &K);
 
     for (int i = 0; i < K; ++i) {
         if (pthread_create(&tid[i], NULL, consumer, NULL)) {
