@@ -49,14 +49,14 @@ void *producer(void *x_void_ptr) {
         pthread_mutex_unlock(&prod_index_get);
 
         pthread_mutex_lock(&lock[index]);
-        if (bufor[index] != NULL)
+        if (bufor[index] != NULL) {
             pthread_cond_wait(&cond2[index], &lock[index]);
+        }
         printf("%d dawanie przez %ld\n", index, pthread_self());
         int len = rand() % 20;
         bufor[index] = (char *) malloc(len * sizeof(char));
-        for (int j = 0; j < len; ++j) {
-            fgets(bufor[index], len, file);
-        }
+        fgets(bufor[index], len, file);
+
 
         pthread_cond_broadcast(&cond[index]);
         pthread_mutex_unlock(&lock[index]);
@@ -75,17 +75,18 @@ void *consumer(void *x_void_ptr) {
 
         pthread_mutex_lock(&lock2[index]);
         if (bufor[index] == NULL) {
-            //printf("czekam\n");
             pthread_cond_wait(&cond[index], &lock2[index]);
         }
 
-        printf("%d branie przez %ld\n", index, pthread_self());
-        if (strlen(bufor[index]) == L) {
-            for (int j = 0; j < strlen(bufor[index]); ++j) {
-                printf("%c", bufor[index][j]);
+        if (bufor[index] != NULL) {
+            printf("%d branie przez %ld\n", index, pthread_self());
+            if (strlen(bufor[index]) == L) {
+                for (int j = 0; j < strlen(bufor[index]); ++j) {
+                    printf("%c", bufor[index][j]);
+                }
             }
+            printf("\n");
         }
-        printf("\n");
         bufor[index] = NULL;
 
         pthread_cond_broadcast(&cond2[index]);

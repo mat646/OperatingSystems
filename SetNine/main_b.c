@@ -74,9 +74,7 @@ void *producer(void *x_void_ptr) {
         printf("%d dawanie przez %ld\n", index, pthread_self());
         int len = rand() % 20;
         bufor[index] = (char *) malloc(len * sizeof(char));
-        for (int j = 0; j < len; ++j) {
-            fgets(bufor[index], len, file);
-        }
+        fgets(bufor[index], len, file);
 
         sem_post(semid2[index]);
     }
@@ -95,7 +93,10 @@ void *consumer(void *x_void_ptr) {
         sem_wait(semid2[index]);
 
         printf("%d branie przez %ld\n", index, pthread_self());
+        printf("%d", (int)strlen(bufor[index]));
+        printf("%d", L);
         if (strlen(bufor[index]) == L) {
+
             for (int j = 0; j < strlen(bufor[index]); ++j) {
                 printf("%c", bufor[index][j]);
             }
@@ -151,6 +152,16 @@ int main(int argc, char **argv) {
 
     sleep(1);
     //sleep(N * K);
+
+    for (int i = 0; i < N; ++i) {
+        sem_destroy(semid[i]);
+        sem_destroy(semid2[i]);
+        char name[20];
+        sprintf(name, "/sem%d", i);
+        sem_unlink(name);
+        sprintf(name, "/sem2%d", i);
+        sem_unlink(name);
+    }
 
     return 0;
 }
