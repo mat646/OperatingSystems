@@ -20,4 +20,4 @@ run-client-1:
 	./client c1 18080 127.0.0.1 1
 
 run-client-2:
-	./client c2 18080 socket1 0
+	./client c1 18080 socket1 0

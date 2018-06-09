@@ -53,48 +53,57 @@ int main(int argc, char **argv) {
     //-------------------INIT INET-------------------
 
     inet_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if(inet_socket == -1)
+    if (inet_socket == -1) {
         printf("Was unable to create inet_socket socket\n");
+        exit(1);
+    }
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons((uint16_t) port_number);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    int result = bind(inet_socket, (const struct sockaddr *)&addr, sizeof(addr));
-    if(result == -1)
+    int result = bind(inet_socket, (const struct sockaddr *) &addr, sizeof(addr));
+    if (result == -1) {
         printf("Was unable to bind inet_socket socket\n");
+        exit(1);
+    }
 
     result = listen(inet_socket, 10);
-    if(result == -1)
+    if (result == -1) {
         printf("Error occurred, when tired to open inet_socket socket for connection requests\n");
+        exit(1);
+    }
 
 
     //-------------------INIT UNIX-------------------
 
     unix_socket = socket(AF_UNIX, SOCK_STREAM, 0);
-    if(unix_socket == -1)
+    if (unix_socket == -1) {
         printf("Was unable to create unix socket\n");
+        exit(1);
+    }
 
     struct sockaddr_un addr1;
     addr1.sun_family = AF_UNIX;
     strcpy(addr1.sun_path, socket_path);
-
-    result = bind(unix_socket, (struct sockaddr *)&(addr1), sizeof(addr1));
-    if (result != 0){
+    result = bind(unix_socket, (struct sockaddr *) &(addr1), sizeof(addr1));
+    if (result != 0) {
         printf("failed to bind unix socket\n");
         exit(1);
     }
 
     result = listen(unix_socket, 10);
-    if (result == -1)
+    if (result == -1) {
         printf("Error occurred, when tired to open unix socket for connection requests\n");
+        exit(1);
+    }
 
 
     //-------------------INIT EPOLL-------------------
 
     epoll = epoll_create1(0);
-    if (epoll == -1){
+    if (epoll == -1) {
         printf("Failed to create epoll file descriptor\n");
         exit(1);
     }
@@ -102,13 +111,13 @@ int main(int argc, char **argv) {
     struct epoll_event e;
     e.events = EPOLLIN | EPOLLET;
     e.data.fd = unix_socket;
-    if (epoll_ctl(epoll,EPOLL_CTL_ADD, unix_socket, &e) == -1){
+    if (epoll_ctl(epoll, EPOLL_CTL_ADD, unix_socket, &e) == -1) {
         fprintf(stderr, "Failed to create epoll file descriptor for LOCAL\n");
         exit(1);
     }
 
     e.data.fd = inet_socket;
-    if (epoll_ctl(epoll,EPOLL_CTL_ADD, inet_socket, &e) == -1){
+    if (epoll_ctl(epoll, EPOLL_CTL_ADD, inet_socket, &e) == -1) {
         fprintf(stderr, "Failed to create epoll file descriptor for Inet\n");
         exit(1);
     }
@@ -124,10 +133,10 @@ int main(int argc, char **argv) {
         clients_ping[i] = 1000;
     }
 
+
     //-------------------INPUT LOOP-------------------
 
-    while (1)
-    {
+    while (1) {
         char op;
         int arg1, arg2;
         scanf(" %c %d %d", &op, &arg1, &arg2);
@@ -144,9 +153,9 @@ int main(int argc, char **argv) {
         msg1.eval1.operand = op;
 
         for (int i = 0; i < 100; ++i) {
-            if(clients_ping[i] < 10) {
+            if (clients_ping[i] < 10) {
                 printf("%d\n", i);
-                if(write(clients_fd[i], &msg1, sizeof(msg1)) <= 0){
+                if (write(clients_fd[i], &msg1, sizeof(msg1)) <= 0) {
                     printf("client failed to receive message \n");
                 }
             }
@@ -159,36 +168,54 @@ void *server_loop() {
 
     struct epoll_event events[100];
 
-    while(1) {
+    while (1) {
         int event = epoll_wait(epoll, events, 100, -1);
-        for(int i = 0; i < event; i++){
-            if(events[i].data.fd == unix_socket || events[i].data.fd == inet_socket){
+        for (int i = 0; i < event; i++) {
+            if (events[i].data.fd == unix_socket || events[i].data.fd == inet_socket) {
 
                 struct sockaddr new_addr;
                 socklen_t new_addr_len = sizeof(new_addr);
-                clients_fd[last_index] =  accept(events[i].data.fd, &new_addr, &new_addr_len);
+                clients_fd[last_index] = accept(events[i].data.fd, &new_addr, &new_addr_len);
                 clients_ping[last_index] = 0;
-                //strcpy(clients_names[i], )
-
 
                 struct epoll_event e;
                 e.events = EPOLLIN | EPOLLET;
                 e.data.fd = clients_fd[last_index];
-                if (epoll_ctl(epoll,EPOLL_CTL_ADD, clients_fd[last_index], &e) == -1){
+                if (epoll_ctl(epoll, EPOLL_CTL_ADD, clients_fd[last_index], &e) == -1) {
                     fprintf(stderr, "Failed to create epoll file descriptor for client\n");
                 }
-                last_index++;
-                printf("loged user\n");
+
             } else {
                 msg ms;
-                ssize_t bytes = read(events[i].data.fd, &ms, sizeof(ms));
+                read(events[i].data.fd, &ms, sizeof(ms));
 
-                if(ms.eval1.type == 1) {
+                if (ms.eval1.type == 1) {
                     printf("Ping received\n");
-                } else if(ms.eval1.type == 2) {
-                    printf("Result is: %d\n", ms.eval1.arg1);
-                } else if(ms.eval1.type == 0) {
+                    for (int j = 0; j < last_index; ++j) {
+                        if(strcmp(ms.name, clients_names[j]) == 0) {
+                            clients_ping[j] = 0;
+                        }
+                    }
+
+                } else if (ms.eval1.type == 2) {
+                    printf("Result from %s is: %d\n", ms.name, ms.eval1.arg1);
+                } else if (ms.eval1.type == 0) {
                     printf("Logging now\n");
+                    int stat = 0;
+                    for (int j = 0; j < last_index; ++j) {
+                        if (strcmp(ms.name, clients_names[j]) == 0) {
+                            close(events[i].data.fd);
+                            clients_ping[last_index] = 100;
+                            if (write(clients_fd[last_index], &ms, sizeof(ms)) <= 0) {
+                                printf("client failed to receive message \n");
+                            }
+                            stat = 1;
+                        }
+                    }
+                    if (stat == 0) {
+                        strcpy(clients_names[last_index], ms.name);
+                        last_index++;
+                    }
                 }
 
             }
@@ -201,4 +228,17 @@ void *server_loop() {
 
 void *ping_loop() {
 
+    while(1) {
+        sleep(3);
+        for (int i = 0; i < last_index; ++i) {
+            if (clients_ping[i] < 10) {
+                clients_ping[i]++;
+                msg msg1;
+                msg1.eval1.type = 1;
+                if (send(clients_fd[i], &msg1, sizeof(msg1), MSG_NOSIGNAL) <= 0) {
+                    printf("client failed to send message \n");
+                }
+            }
+        }
+    }
 }
