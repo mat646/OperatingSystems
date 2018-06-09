@@ -1,0 +1,8 @@
+//
+// Created by mateusz on 08.06.18.
+//
+
+#ifndef OPERATINGSYSTEMS_CONTRACT_H
+#define OPERATINGSYSTEMS_CONTRACT_H
+
+#endif //OPERATINGSYSTEMS_CONTRACT_H

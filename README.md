@@ -48,7 +48,7 @@ Mutex and Condition Variables.
 
 ### Set ten
 
-...
+Sockets.
 
 ## Usage
 
