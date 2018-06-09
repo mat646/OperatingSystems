@@ -7,7 +7,7 @@
 
 typedef struct eval {
     int type; // 0 - log in, 1 - ping, 2 - operation
-    int operand; // 0 -> '+', 1 -> '-', 2 -> '*', 3 -> '/'
+    char operand; // available: '+', '-', '*', '/'
     int arg1; // also result of operation
     int arg2;
 } eval;

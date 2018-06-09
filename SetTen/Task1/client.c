@@ -22,7 +22,7 @@ char name[100];
 int connect_type;
 char address[100];
 int port;
-int soc;
+int socket_desc;
 
 int main(int argc, char **argv) {
 
@@ -37,15 +37,15 @@ int main(int argc, char **argv) {
     sscanf(argv[4], "%d", &connect_type);
 
 
-    //-----OPENING SOCKET---------
+    //-------------------OPENING SOCKET-------------------
 
     if (connect_type == 1) {
-        soc = socket(AF_INET,SOCK_STREAM,0);
-        if(soc == -1){
+        socket_desc = socket(AF_INET,SOCK_STREAM,0);
+        if(socket_desc == -1){
             printf("failed to create socket");
             exit(1);
-
         }
+
         struct sockaddr_in addr;
         addr.sin_family = AF_INET;
         if(inet_pton(AF_INET, address, &addr.sin_addr) == 0){
@@ -54,76 +54,75 @@ int main(int argc, char **argv) {
         }
         addr.sin_port = htons((uint16_t) port);
 
-        if(connect(soc, (const struct sockaddr *) &addr,  sizeof(addr)) == -1){
+        if(connect(socket_desc, (const struct sockaddr *) &addr,  sizeof(addr)) == -1){
             perror("failed to establish connection");
             exit(1);
         }
     } else {
-        soc = socket(AF_UNIX, SOCK_STREAM, 0);
-        if(soc == -1){
+        socket_desc = socket(AF_UNIX, SOCK_STREAM, 0);
+        if(socket_desc == -1){
             printf("failed to create socket");
             exit(1);
         }
+
         struct sockaddr_un addr;
         addr.sun_family = AF_UNIX;
         strcpy(addr.sun_path, address);
 
-        if(connect(soc, (const struct sockaddr *) &addr,  sizeof(addr)) == -1){
+        if(connect(socket_desc, (const struct sockaddr *) &addr,  sizeof(addr)) == -1){
             perror("failed to establish connection");
             exit(1);
         }
     }
 
-    //--------LOGGING IN----------------------
+    //-------------------LOGGING IN-------------------
 
-    msg ms;
-    strcpy(ms.name, name);
-    ms.eval1.type = 0;
-    int z;
-    if((z = write(soc, &ms, sizeof(ms))) < 0){
+    msg log_msg;
+    strcpy(log_msg.name, name);
+    log_msg.eval1.type = 0;
+    if(write(socket_desc, &log_msg, sizeof(log_msg)) < 0){
         perror("failed to log to");
     }
 
 
-    //----------LOOP------------------
+    //-------------------MAIN LOOP-------------------
 
     while (1) {
-        msg msg1;
-        ssize_t bytes = recv(soc, &msg1, sizeof(msg1), MSG_WAITALL);
+        msg *msg1 = malloc(sizeof(msg));
+        recv(socket_desc, msg1, sizeof(msg), MSG_WAITALL);
 
-        if (msg1.eval1.type == 0) {
-            printf("there is already client with that name!");
-        } else if(msg1.eval1.type == 2) {
+        if (msg1->eval1.type == 0) {
+            printf("there is already client with that name!\n");
+            exit(0);
+        } else if(msg1->eval1.type == 2) {
             printf("task recived\n");
-            fflush(stdout);
 
             int res;
+            printf("%d %d\n", msg1->eval1.arg1, msg1->eval1.arg2);
 
-            if (msg1.eval1.operand == 0) {
-                res = msg1.eval1.arg1 + msg1.eval1.arg2;
-            } else if (msg1.eval1.operand == 1) {
-                res = msg1.eval1.arg1 - msg1.eval1.arg2;
-            } else if (msg1.eval1.operand == 2) {
-                res = msg1.eval1.arg1 * msg1.eval1.arg2;
-            } else if (msg1.eval1.operand == 3) {
-                res = msg1.eval1.arg1 / msg1.eval1.arg2;
+            if (msg1->eval1.operand == '+') {
+                res = msg1->eval1.arg1 + msg1->eval1.arg2;
+            } else if (msg1->eval1.operand == '-') {
+                res = msg1->eval1.arg1 - msg1->eval1.arg2;
+            } else if (msg1->eval1.operand == '*') {
+                res = msg1->eval1.arg1 * msg1->eval1.arg2;
+            } else if (msg1->eval1.operand == '/') {
+                res = msg1->eval1.arg1 / msg1->eval1.arg2;
             }
 
-            strcpy(msg1.name, name);
+            strcpy(msg1->name, name);
 
-            msg1.eval1.type = 4;
-            msg1.eval1.arg1 = res;
+            msg1->eval1.type = 2;
+            msg1->eval1.arg1 = res;
 
-            write(soc, &msg1, sizeof(msg1));
+            write(socket_desc, msg1, sizeof(msg));
 
-        } else if(msg1.eval1.type == 1) {
+        } else if(msg1->eval1.type == 1) {
             printf("Pinged!\n");
-            fflush(stdout);
-            write(soc, &msg1, sizeof(msg1));
+            write(socket_desc, msg1, sizeof(msg));
         }
 
-
+        free(msg1);
     }
-
 
 }
