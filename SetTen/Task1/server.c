@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 
     inet_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (inet_socket == -1) {
-        printf("Was unable to create inet_socket socket\n");
+        printf("inet: can't create socket\n");
         exit(1);
     }
 
@@ -65,13 +65,13 @@ int main(int argc, char **argv) {
 
     int result = bind(inet_socket, (const struct sockaddr *) &addr, sizeof(addr));
     if (result == -1) {
-        printf("Was unable to bind inet_socket socket\n");
+        printf("inet: can't bind socket\n");
         exit(1);
     }
 
     result = listen(inet_socket, 10);
     if (result == -1) {
-        printf("Error occurred, when tired to open inet_socket socket for connection requests\n");
+        printf("inet: can't open socket for connection\n");
         exit(1);
     }
 
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
     unix_socket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (unix_socket == -1) {
-        printf("Was unable to create unix socket\n");
+        printf("unix: can't create socket\n");
         exit(1);
     }
 
@@ -89,13 +89,13 @@ int main(int argc, char **argv) {
     strcpy(addr1.sun_path, socket_path);
     result = bind(unix_socket, (struct sockaddr *) &(addr1), sizeof(addr1));
     if (result != 0) {
-        printf("failed to bind unix socket\n");
+        printf("unix: can't bind socket\n");
         exit(1);
     }
 
     result = listen(unix_socket, 10);
     if (result == -1) {
-        printf("Error occurred, when tired to open unix socket for connection requests\n");
+        printf("unix: can't open socket for connection\n");
         exit(1);
     }
 
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 
     epoll = epoll_create1(0);
     if (epoll == -1) {
-        printf("Failed to create epoll file descriptor\n");
+        printf("Can't create epoll file\n");
         exit(1);
     }
 
@@ -112,13 +112,13 @@ int main(int argc, char **argv) {
     e.events = EPOLLIN | EPOLLET;
     e.data.fd = unix_socket;
     if (epoll_ctl(epoll, EPOLL_CTL_ADD, unix_socket, &e) == -1) {
-        fprintf(stderr, "Failed to create epoll file descriptor for LOCAL\n");
+        fprintf(stderr, "unix: Can't create epoll file\n");
         exit(1);
     }
 
     e.data.fd = inet_socket;
     if (epoll_ctl(epoll, EPOLL_CTL_ADD, inet_socket, &e) == -1) {
-        fprintf(stderr, "Failed to create epoll file descriptor for Inet\n");
+        fprintf(stderr, "inet: Can't create epoll file\n");
         exit(1);
     }
 
@@ -154,9 +154,8 @@ int main(int argc, char **argv) {
 
         for (int i = 0; i < 100; ++i) {
             if (clients_ping[i] < 10) {
-                printf("%d\n", i);
                 if (write(clients_fd[i], &msg1, sizeof(msg1)) <= 0) {
-                    printf("client failed to receive message \n");
+                    printf("Can't send message\n");
                 }
             }
         }
@@ -182,7 +181,7 @@ void *server_loop() {
                 e.events = EPOLLIN | EPOLLET;
                 e.data.fd = clients_fd[last_index];
                 if (epoll_ctl(epoll, EPOLL_CTL_ADD, clients_fd[last_index], &e) == -1) {
-                    fprintf(stderr, "Failed to create epoll file descriptor for client\n");
+                    printf("Can't create epoll file\n");
                 }
 
             } else {
@@ -207,7 +206,7 @@ void *server_loop() {
                             close(events[i].data.fd);
                             clients_ping[last_index] = 100;
                             if (write(clients_fd[last_index], &ms, sizeof(ms)) <= 0) {
-                                printf("client failed to receive message \n");
+                                printf("Can't send message\n");
                             }
                             stat = 1;
                         }
@@ -236,7 +235,7 @@ void *ping_loop() {
                 msg msg1;
                 msg1.eval1.type = 1;
                 if (send(clients_fd[i], &msg1, sizeof(msg1), MSG_NOSIGNAL) <= 0) {
-                    printf("client failed to send message \n");
+                    printf("Can't send message\n");
                 }
             }
         }

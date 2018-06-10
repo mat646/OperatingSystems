@@ -6,7 +6,7 @@
 #define OPERATINGSYSTEMS_CONTRACT_H
 
 typedef struct eval {
-    int type; // 0 - log in, 1 - ping, 2 - operation
+    int type; // 0 - log in, 1 - ping, 2 - operation, 3 - close client
     char operand; // available: '+', '-', '*', '/'
     int arg1; // also result of operation
     int arg2;

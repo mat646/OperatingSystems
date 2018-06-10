@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     if (connect_type == 1) {
         socket_desc = socket(AF_INET, SOCK_DGRAM, 0);
         if (socket_desc == -1) {
-            printf("failed to create socket\n");
+            printf("inet: can't create socket\n");
             exit(1);
         }
 
@@ -50,19 +50,19 @@ int main(int argc, char **argv) {
         addr.sin_family = AF_INET;
         addr.sin_port = htons((uint16_t) port);
         if (inet_pton(AF_INET, address, &addr.sin_addr) == 0) {
-            printf("failed to establish address\n");
+            printf("inet: can't establish address\n");
             exit(1);
         }
 
         if (connect(socket_desc, (const struct sockaddr *) &addr, sizeof(addr)) == -1) {
-            printf("failed to establish connection\n");
+            printf("inet: can't connect\n");
             exit(1);
         }
 
     } else {
         socket_desc = socket(AF_UNIX, SOCK_DGRAM, 0);
         if (socket_desc == -1) {
-            printf("failed to create socket\n");
+            printf("unix: can't create socket\n");
             exit(1);
         }
 
@@ -71,12 +71,12 @@ int main(int argc, char **argv) {
         strcpy(addr.sun_path, address);
 
         if(bind(socket_desc, (const struct sockaddr *) &addr, sizeof(sa_family_t)) == -1){
-            printf("failed to establish bind local");
+            printf("unix: can't connect");
             exit(1);
         }
 
         if (connect(socket_desc, (const struct sockaddr *) &addr, sizeof(addr)) == -1) {
-            printf("failed to establish connection\n");
+            printf("unix: can't connect\n");
             exit(1);
         }
     }
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     strcpy(log_msg.name, name);
     log_msg.eval1.type = 0;
     if (write(socket_desc, &log_msg, sizeof(log_msg)) < 0) {
-        printf("failed to log to\n");
+        printf("can't log on server\n");
     }
 
 
@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
         recv(socket_desc, msg1, sizeof(msg), MSG_WAITALL);
 
         if (msg1->eval1.type == 0) {
-            printf("there is already client with that name!\n");
+            printf("client with that name already exists\n");
             exit(0);
         } else if (msg1->eval1.type == 2) {
             printf("task received\n");
@@ -122,11 +122,11 @@ int main(int argc, char **argv) {
             write(socket_desc, msg1, sizeof(msg));
 
         } else if (msg1->eval1.type == 1) {
-            printf("Pinged!\n");
+            printf("pinged\n");
             strcpy(msg1->name, name);
             write(socket_desc, msg1, sizeof(msg));
         } else if (msg1->eval1.type == 3) {
-            printf("Server closed.");
+            printf("Server closed");
             exit(0);
         }
 
